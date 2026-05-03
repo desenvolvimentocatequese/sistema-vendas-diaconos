@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title th:fragment="title">Painel · Sistema Vendas</title>
+</head>
+<body>
+<th:block th:fragment="content">
+    <div class="max-w-5xl mx-auto px-4 py-10 space-y-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">Painel</h1>
+                <p class="text-slate-600 mt-1">
+                    Olá, <span class="font-semibold text-slate-900" th:text="${usuario?.nome ?: 'Usuário'}">Usuário</span>.
+                </p>
+            </div>
+            <a th:href="@{/catalogoProdutos}"
+               class="inline-flex rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-50 shrink-0">
+                Ir ao catálogo
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <a th:href="@{/produtos}"
+               class="bg-white rounded-xl border border-slate-200 p-5 hover:border-slate-400 hover:shadow-sm transition">
+                <h2 class="font-semibold text-slate-900">Produtos</h2>
+                <p class="text-sm text-slate-500 mt-1">Gestão de cadastro e estoque futuro.</p>
+            </a>
+            <a th:href="@{/pedidos}"
+               class="bg-white rounded-xl border border-slate-200 p-5 hover:border-slate-400 hover:shadow-sm transition">
+                <h2 class="font-semibold text-slate-900">Pedidos</h2>
+                <p class="text-sm text-slate-500 mt-1">Acompanhe pedidos e entregas.</p>
+            </a>
+            <a th:href="@{/chamados}"
+               class="bg-white rounded-xl border border-slate-200 p-5 hover:border-slate-400 hover:shadow-sm transition">
+                <h2 class="font-semibold text-slate-900">Chamados</h2>
+                <p class="text-sm text-slate-500 mt-1">Suporte ao cliente.</p>
+            </a>
+        </div>
+
+        <div class="bg-white rounded-xl border border-slate-200 p-6">
+            <h2 class="font-semibold text-slate-900 mb-2">Atalhos</h2>
+            <div class="flex flex-wrap gap-2 text-sm">
+                <a th:href="@{/carrinho}" class="text-emerald-700 hover:underline">Carrinho</a>
+                <span class="text-slate-300">|</span>
+                <a th:href="@{/pedidos}" class="text-slate-700 hover:underline">Listar pedidos</a>
+            </div>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>

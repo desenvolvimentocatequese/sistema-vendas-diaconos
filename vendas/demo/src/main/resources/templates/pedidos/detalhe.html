@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title th:fragment="title">Detalhe do Pedido</title>
+</head>
+<body>
+<th:block th:fragment="content">
+    <div class="max-w-6xl mx-auto px-4 py-8 space-y-6">
+        <div class="flex items-center justify-between">
+            <h1 class="text-2xl font-bold text-slate-900">Pedido <span th:text="'#' + ${pedido.id}">#1</span></h1>
+            <a th:href="@{/pedidos}"
+               class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
+                Voltar
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-white rounded-xl border border-slate-200 p-4">
+                <p class="text-xs uppercase tracking-wide text-slate-500">ID</p>
+                <p class="text-lg font-semibold text-slate-900" th:text="${pedido.id}"></p>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 p-4">
+                <p class="text-xs uppercase tracking-wide text-slate-500">Data</p>
+                <p class="text-sm font-medium text-slate-900"
+                   th:text="${#temporals.format(pedido.dataCriacao, 'dd/MM/yyyy HH:mm')}"></p>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 p-4">
+                <p class="text-xs uppercase tracking-wide text-slate-500">Status</p>
+                <p class="text-sm font-semibold text-slate-900" th:text="${pedido.status}"></p>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 p-4">
+                <p class="text-xs uppercase tracking-wide text-slate-500">Total</p>
+                <p class="text-lg font-semibold text-slate-900"
+                   th:text="'R$ ' + ${#numbers.formatDecimal(pedido.valorTotal, 1, 2)}"></p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl border border-slate-200 overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead>
+                <tr class="border-b border-slate-200 bg-slate-50 text-left text-slate-600">
+                    <th class="p-4 font-semibold">Produto</th>
+                    <th class="p-4 font-semibold">Quantidade</th>
+                    <th class="p-4 font-semibold">Tamanho</th>
+                    <th class="p-4 font-semibold">Cor</th>
+                    <th class="p-4 font-semibold">Preço unitário</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200">
+                <tr th:each="item : ${pedido.itens}">
+                    <td class="p-4 text-slate-900 font-medium" th:text="${item.produto != null ? item.produto.nome : 'Produto removido'}"></td>
+                    <td class="p-4 text-slate-700" th:text="${item.quantidade}"></td>
+                    <td class="p-4 text-slate-700" th:text="${item.tamanho != null ? item.tamanho : '-'}"></td>
+                    <td class="p-4 text-slate-700" th:text="${item.cor != null ? item.cor : '-'}"></td>
+                    <td class="p-4 text-slate-900" th:text="'R$ ' + ${#numbers.formatDecimal(item.precoUnitario, 1, 2)}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>

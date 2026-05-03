@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<footer th:fragment="footer" class="border-t border-slate-200 bg-white mt-auto">
+    <div class="max-w-7xl mx-auto px-4 py-6 flex flex-col sm:flex-row sm:justify-between gap-3 text-sm text-slate-500">
+        <p>&copy; Sistema Vendas</p>
+        <div class="flex flex-wrap gap-4">
+            <a th:href="@{/catalogoProdutos}" class="hover:text-slate-900">Catálogo</a>
+            <a th:href="@{/}" class="hover:text-slate-900">Início</a>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

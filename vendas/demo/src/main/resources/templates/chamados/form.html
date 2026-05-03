@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title th:fragment="title" th:text="${chamado.id != null} ? 'Editar chamado' : 'Novo chamado'">Chamado</title>
+</head>
+<body>
+<th:block th:fragment="content">
+    <div class="max-w-2xl mx-auto px-4 py-8">
+        <h1 class="text-2xl font-bold text-slate-900 mb-6"
+            th:text="${chamado.id != null} ? 'Editar chamado' : 'Novo chamado'">Chamado</h1>
+
+        <div class="bg-white rounded-xl border border-slate-200 p-6">
+            <form th:action="@{/chamados}" method="post" th:object="${chamado}" class="space-y-5">
+                <input type="hidden" th:field="*{id}">
+                <div>
+                    <label for="titulo" class="block text-sm font-medium text-slate-700 mb-1">Título</label>
+                    <input type="text" id="titulo" th:field="*{titulo}" required
+                           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label for="descricao" class="block text-sm font-medium text-slate-700 mb-1">Descrição</label>
+                    <textarea id="descricao" th:field="*{descricao}" required rows="4"
+                              class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"></textarea>
+                </div>
+                <div>
+                    <label for="status" class="block text-sm font-medium text-slate-700 mb-1">Status</label>
+                    <select id="status" th:field="*{status}"
+                            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                        <option th:each="status : ${T(com.vendas.system.model.StatusChamado).values()}"
+                                th:value="${status}" th:text="${status}"></option>
+                    </select>
+                </div>
+                <div>
+                    <label for="prioridade" class="block text-sm font-medium text-slate-700 mb-1">Prioridade</label>
+                    <input type="text" id="prioridade" th:field="*{prioridade}"
+                           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label for="resposta" class="block text-sm font-medium text-slate-700 mb-1">Resposta</label>
+                    <textarea id="resposta" th:field="*{resposta}" rows="3"
+                              class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"></textarea>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="submit"
+                            class="rounded-lg bg-slate-900 text-white px-5 py-2.5 text-sm font-medium hover:bg-slate-700">
+                        Salvar
+                    </button>
+                    <a th:href="@{/chamados}"
+                       class="rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                        Voltar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>

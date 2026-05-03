@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title th:fragment="title">Chamados</title>
+</head>
+<body>
+<th:block th:fragment="content">
+    <div class="max-w-7xl mx-auto px-4 py-8 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <h1 class="text-2xl font-bold text-slate-900">Chamados</h1>
+            <a th:href="@{/chamados/novo}"
+               class="inline-flex rounded-lg bg-emerald-600 text-white px-4 py-2 text-sm font-medium hover:bg-emerald-500 shrink-0">
+                Novo chamado
+            </a>
+        </div>
+
+        <div class="bg-white rounded-xl border border-slate-200 overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead>
+                <tr class="border-b border-slate-200 bg-slate-50 text-left text-slate-600">
+                    <th class="p-4 font-semibold">ID</th>
+                    <th class="p-4 font-semibold">Título</th>
+                    <th class="p-4 font-semibold">Status</th>
+                    <th class="p-4 font-semibold">Prioridade</th>
+                    <th class="p-4 font-semibold">Criado</th>
+                    <th class="p-4 font-semibold">Ações</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200">
+                <tr th:each="chamado : ${chamados}" class="hover:bg-slate-50/80">
+                    <td class="p-4 text-slate-600" th:text="${chamado.id}"></td>
+                    <td class="p-4 font-medium text-slate-900" th:text="${chamado.titulo}"></td>
+                    <td class="p-4 text-slate-600" th:text="${chamado.status}"></td>
+                    <td class="p-4 text-slate-600" th:text="${chamado.prioridade}"></td>
+                    <td class="p-4 text-slate-600"
+                        th:text="${#temporals.format(chamado.dataCriacao, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td class="p-4">
+                        <div class="flex flex-wrap gap-2">
+                            <a th:href="@{/chamados/editar/{id}(id=${chamado.id})}"
+                               class="px-3 py-1.5 rounded-lg border border-amber-300 text-amber-900 text-xs hover:bg-amber-50">Editar</a>
+                            <a th:href="@{/chamados/deletar/{id}(id=${chamado.id})}"
+                               class="px-3 py-1.5 rounded-lg border border-red-200 text-red-700 text-xs hover:bg-red-50"
+                               onclick="return confirm('Tem certeza?')">Excluir</a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>

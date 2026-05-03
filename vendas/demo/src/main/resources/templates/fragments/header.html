@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<header th:fragment="header" class="bg-white border-b border-slate-200 sticky top-0 z-20">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div class="flex items-center gap-6 flex-wrap justify-between lg:justify-start">
+            <a th:href="@{/catalogoProdutos}" class="text-2xl font-bold tracking-tight text-slate-900">Sistema Vendas</a>
+            <nav class="flex flex-wrap gap-2 text-sm" aria-label="Navegação principal">
+                <a th:href="@{/catalogoProdutos}"
+                   class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Catálogo</a>
+                <a th:href="@{/produtos}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Gestão produtos</a>
+                <a th:href="@{/pedidos}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Pedidos</a>
+                <a th:href="@{/chamados}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Chamados</a>
+                <a th:href="@{/dashboard}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Painel</a>
+            </nav>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap lg:justify-end">
+            <th:block th:unless="${usuarioLogado}">
+                <a th:href="@{/login}" class="px-3 py-2 rounded-lg border border-slate-300 text-sm hover:bg-slate-100">Entrar</a>
+                <a th:href="@{/register}"
+                   class="px-3 py-2 rounded-lg bg-slate-900 text-white text-sm hover:bg-slate-700">Cadastrar</a>
+            </th:block>
+            <form th:if="${usuarioLogado}" th:action="@{/logout}" method="post" class="inline">
+                <button type="submit"
+                        class="px-3 py-2 rounded-lg border border-red-200 text-red-700 text-sm hover:bg-red-50">
+                    Sair
+                </button>
+            </form>
+            <a th:href="@{/carrinho}" class="relative rounded-lg border border-slate-300 px-3 py-2 hover:bg-slate-100">
+                <span class="text-sm font-medium">Carrinho</span>
+                <span class="absolute -top-2 -right-2 min-w-6 h-6 px-1 rounded-full bg-emerald-600 text-white text-xs flex items-center justify-center"
+                      th:text="${carrinhoQuantidade}">0</span>
+            </a>
+        </div>
+    </div>
+</header>
+</body>
+</html>

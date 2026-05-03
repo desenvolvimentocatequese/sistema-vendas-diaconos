@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title th:fragment="title"
+           th:text="${produto.id != null} ? 'Editar Produto · Sistema Vendas' : 'Novo Produto · Sistema Vendas'">Produto</title>
+</head>
+<body>
+<th:block th:fragment="content">
+    <div class="max-w-2xl mx-auto px-4 py-8">
+        <h1 class="text-2xl font-bold text-slate-900 mb-2"
+            th:text="${produto.id != null} ? 'Editar Produto' : 'Novo Produto'">Novo Produto</h1>
+
+        <div th:if="${erroUpload}"
+             class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+             th:text="${erroUpload}"></div>
+        <div th:if="${#fields.hasGlobalErrors()}" th:each="err : ${#fields.globalErrors()}"
+             class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+             th:text="${err}"></div>
+
+        <div class="bg-white rounded-xl border border-slate-200 p-6">
+            <form th:action="@{/produtos}" method="post" th:object="${produto}" enctype="multipart/form-data"
+                  class="space-y-5">
+                <input type="hidden" th:field="*{id}">
+
+                <div>
+                    <label for="nome" class="block text-sm font-medium text-slate-700 mb-1">Nome</label>
+                    <input type="text" id="nome" th:field="*{nome}"
+                           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                    <p class="text-sm text-red-600 mt-1" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></p>
+                </div>
+
+                <div>
+                    <label for="modelo" class="block text-sm font-medium text-slate-700 mb-1">Modelo</label>
+                    <input type="text" id="modelo" th:field="*{modelo}"
+                           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                </div>
+
+                <div>
+                    <label for="tipoProduto" class="block text-sm font-medium text-slate-700 mb-1">Tipo</label>
+                    <select id="tipoProduto" th:field="*{tipoProduto}"
+                            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                        <option value="">Selecione...</option>
+                        <option th:each="tipo : ${tipos}" th:value="${tipo}" th:text="${tipo}"></option>
+                    </select>
+                    <p class="text-sm text-red-600 mt-1" th:if="${#fields.hasErrors('tipoProduto')}"
+                       th:errors="*{tipoProduto}"></p>
+                </div>
+
+                <div>
+                    <label for="preco" class="block text-sm font-medium text-slate-700 mb-1">Preço</label>
+                    <input type="number" id="preco" step="0.01" min="0.01" th:field="*{preco}"
+                           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                    <p class="text-sm text-red-600 mt-1" th:if="${#fields.hasErrors('preco')}" th:errors="*{preco}"></p>
+                </div>
+
+                <div>
+                    <label for="imagemInput" class="block text-sm font-medium text-slate-700 mb-1">Imagem</label>
+                    <input type="file" id="imagemInput" name="imagem" accept="image/*"
+                           class="block w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-medium file:text-slate-700 hover:file:bg-slate-200">
+                    <img id="imagemPreview" alt="Preview"
+                         th:src="${produto.imagemPath != null} ? @{|/images/${produto.imagemPath}|} : ''"
+                         th:class="'mt-3 max-w-[180px] max-h-[180px] rounded-lg border border-slate-200 p-1 object-contain ' + (${produto.imagemPath != null} ? '' : 'hidden')">
+                </div>
+
+                <div>
+                    <span class="block text-sm font-medium text-slate-700 mb-2">Cores disponíveis</span>
+                    <div class="flex flex-wrap gap-x-6 gap-y-2">
+                        <label th:each="cor : ${cores}" class="inline-flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                            <input type="checkbox" class="rounded border-slate-300 text-emerald-600 focus:ring-slate-400"
+                                   th:field="*{coresDisponiveis}" th:value="${cor}">
+                            <span th:text="${cor}"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <span class="block text-sm font-medium text-slate-700 mb-2">Tamanhos disponíveis</span>
+                    <div class="flex flex-wrap gap-x-6 gap-y-2">
+                        <label th:each="tamanho : ${tamanhos}" class="inline-flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                            <input type="checkbox" class="rounded border-slate-300 text-emerald-600 focus:ring-slate-400"
+                                   th:field="*{tamanhosDisponiveis}" th:value="${tamanho}">
+                            <span th:text="${tamanho}"></span>
+                        </label>
+                    </div>
+                    <p class="text-sm text-red-600 mt-1" th:if="${#fields.hasErrors('tamanhosDisponiveis')}"
+                       th:errors="*{tamanhosDisponiveis}"></p>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="ativo" th:field="*{ativo}"
+                           class="rounded border-slate-300 text-emerald-600 focus:ring-slate-400">
+                    <label for="ativo" class="text-sm font-medium text-slate-700">Ativo</label>
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                    <button type="submit"
+                            class="rounded-lg bg-slate-900 text-white px-5 py-2.5 text-sm font-medium hover:bg-slate-700">
+                        Salvar
+                    </button>
+                    <a th:href="@{/produtos}"
+                       class="rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const imagemInput = document.getElementById('imagemInput');
+            const imagemPreview = document.getElementById('imagemPreview');
+            if (!imagemInput || !imagemPreview) return;
+            imagemInput.addEventListener('change', function (event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    imagemPreview.src = e.target.result;
+                    imagemPreview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            });
+        })();
+    </script>
+</th:block>
+</body>
+</html>

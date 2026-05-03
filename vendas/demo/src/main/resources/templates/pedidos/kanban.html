@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title th:fragment="title">Kanban de Pedidos</title>
+</head>
+<body>
+<th:block th:fragment="content">
+    <div class="max-w-7xl mx-auto px-4 py-8 space-y-6">
+        <div class="flex items-center justify-between">
+            <h1 class="text-2xl font-bold text-slate-900">Kanban de Pedidos</h1>
+            <a th:href="@{/pedidos}"
+               class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
+                Voltar para lista
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <section class="bg-white rounded-xl border border-slate-200 p-4">
+                <h2 class="font-semibold text-slate-900 mb-3">NOVO</h2>
+                <div id="coluna-NOVO" class="kanban-coluna min-h-24 space-y-3" data-status="NOVO">
+                    <article th:each="pedido : ${pedidosNovo}"
+                             th:attr="data-id=${pedido.id}"
+                             class="kanban-card bg-slate-50 rounded-lg border border-slate-200 p-3 cursor-move">
+                        <p class="font-semibold text-slate-900" th:text="'Pedido #' + ${pedido.id}"></p>
+                        <p class="text-xs text-slate-500 mt-1" th:text="${#temporals.format(pedido.dataCriacao, 'dd/MM HH:mm')}"></p>
+                        <p class="text-sm text-slate-700 mt-2" th:text="'R$ ' + ${#numbers.formatDecimal(pedido.valorTotal, 1, 2)}"></p>
+                        <a th:href="@{/pedidos/{id}(id=${pedido.id})}" class="text-xs text-slate-700 hover:underline mt-2 inline-block">Detalhes</a>
+                    </article>
+                </div>
+            </section>
+
+            <section class="bg-white rounded-xl border border-slate-200 p-4">
+                <h2 class="font-semibold text-slate-900 mb-3">EM_PRODUCAO</h2>
+                <div id="coluna-EM_PRODUCAO" class="kanban-coluna min-h-24 space-y-3" data-status="EM_PRODUCAO">
+                    <article th:each="pedido : ${pedidosEmProducao}"
+                             th:attr="data-id=${pedido.id}"
+                             class="kanban-card bg-amber-50 rounded-lg border border-amber-200 p-3 cursor-move">
+                        <p class="font-semibold text-slate-900" th:text="'Pedido #' + ${pedido.id}"></p>
+                        <p class="text-xs text-slate-500 mt-1" th:text="${#temporals.format(pedido.dataCriacao, 'dd/MM HH:mm')}"></p>
+                        <p class="text-sm text-slate-700 mt-2" th:text="'R$ ' + ${#numbers.formatDecimal(pedido.valorTotal, 1, 2)}"></p>
+                        <a th:href="@{/pedidos/{id}(id=${pedido.id})}" class="text-xs text-slate-700 hover:underline mt-2 inline-block">Detalhes</a>
+                    </article>
+                </div>
+            </section>
+
+            <section class="bg-white rounded-xl border border-slate-200 p-4">
+                <h2 class="font-semibold text-slate-900 mb-3">FINALIZADO</h2>
+                <div id="coluna-FINALIZADO" class="kanban-coluna min-h-24 space-y-3" data-status="FINALIZADO">
+                    <article th:each="pedido : ${pedidosFinalizado}"
+                             th:attr="data-id=${pedido.id}"
+                             class="kanban-card bg-emerald-50 rounded-lg border border-emerald-200 p-3 cursor-move">
+                        <p class="font-semibold text-slate-900" th:text="'Pedido #' + ${pedido.id}"></p>
+                        <p class="text-xs text-slate-500 mt-1" th:text="${#temporals.format(pedido.dataCriacao, 'dd/MM HH:mm')}"></p>
+                        <p class="text-sm text-slate-700 mt-2" th:text="'R$ ' + ${#numbers.formatDecimal(pedido.valorTotal, 1, 2)}"></p>
+                        <a th:href="@{/pedidos/{id}(id=${pedido.id})}" class="text-xs text-slate-700 hover:underline mt-2 inline-block">Detalhes</a>
+                    </article>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+    <script>
+        async function atualizarStatus(pedidoId, novoStatus) {
+            const body = new URLSearchParams();
+            body.append("id", pedidoId);
+            body.append("status", novoStatus);
+
+            const response = await fetch("/pedidos/mudar-status", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: body.toString()
+            });
+
+            if (!response.ok) {
+                throw new Error("Erro ao atualizar status");
+            }
+        }
+
+        document.querySelectorAll(".kanban-coluna").forEach((coluna) => {
+            Sortable.create(coluna, {
+                group: "pedidos",
+                animation: 150,
+                ghostClass: "opacity-60",
+                onEnd: async (evt) => {
+                    const pedidoId = evt.item.dataset.id;
+                    const novoStatus = evt.to.dataset.status;
+                    try {
+                        await atualizarStatus(pedidoId, novoStatus);
+                    } catch (err) {
+                        evt.from.insertBefore(evt.item, evt.from.children[evt.oldIndex] || null);
+                        alert("Não foi possível atualizar o status do pedido.");
+                    }
+                }
+            });
+        });
+    </script>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title th:fragment="title">Carrinho</title>
+</head>
+<body>
+<th:block th:fragment="content">
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-2xl font-bold text-slate-900">Seu carrinho</h1>
+            <a th:href="@{/catalogoProdutos}" class="text-sm text-slate-600 hover:text-slate-900">Continuar comprando</a>
+        </div>
+
+        <div th:if="${#lists.isEmpty(itens)}" class="bg-white rounded-xl border border-slate-200 p-12 text-center">
+            <p class="text-slate-500 mb-4">Seu carrinho está vazio.</p>
+            <a th:href="@{/catalogoProdutos}"
+               class="inline-flex rounded-lg bg-slate-900 text-white px-4 py-2 text-sm hover:bg-slate-700">
+                Ver catálogo
+            </a>
+        </div>
+
+        <div th:if="${!#lists.isEmpty(itens)}" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <section class="lg:col-span-8 space-y-3">
+                <article th:each="item, iter : ${itens}"
+                         class="bg-white rounded-xl border border-slate-200 p-4 flex gap-4 items-center">
+                    <img th:if="${item.imagemPath != null}" th:src="@{|/images/${item.imagemPath}|}" alt="Imagem produto"
+                         class="w-20 h-20 object-cover rounded-lg border border-slate-200">
+                    <div th:if="${item.imagemPath == null}"
+                         class="w-20 h-20 rounded-lg border border-slate-200 bg-slate-100 flex items-center justify-center text-slate-400 text-xs">
+                        Sem imagem
+                    </div>
+
+                    <div class="flex-1 min-w-0">
+                        <h2 class="font-semibold text-slate-900 truncate" th:text="${item.nomeProduto}">Produto</h2>
+                        <p class="text-sm text-slate-500">
+                            Tam: <span th:text="${item.tamanho}">M</span>
+                            <span class="mx-2">|</span>
+                            Cor: <span th:text="${item.cor != null ? item.cor : '-'}">PRETO</span>
+                        </p>
+                        <p class="text-sm text-slate-500">Qtd: <span th:text="${item.quantidade}">1</span></p>
+                    </div>
+
+                    <div class="text-right shrink-0">
+                        <p class="text-sm text-slate-500" th:text="'R$ ' + ${#numbers.formatDecimal(item.preco, 1, 2)}">R$ 0,00</p>
+                        <p class="font-semibold text-slate-900" th:text="'R$ ' + ${#numbers.formatDecimal(item.subtotal, 1, 2)}">R$ 0,00</p>
+                        <form th:action="@{/carrinho/remover}" method="post" class="mt-2">
+                            <input type="hidden" name="indice" th:value="${iter.index}">
+                            <button type="submit" class="text-xs text-red-600 hover:text-red-700">Remover</button>
+                        </form>
+                    </div>
+                </article>
+            </section>
+
+            <aside class="lg:col-span-4">
+                <div class="bg-white rounded-xl border border-slate-200 p-4 space-y-4">
+                    <h2 class="font-semibold text-lg text-slate-900">Resumo do pedido</h2>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-slate-500">Total</span>
+                        <strong class="text-slate-900" th:text="'R$ ' + ${#numbers.formatDecimal(total, 1, 2)}">R$ 0,00</strong>
+                    </div>
+                    <a th:href="@{/checkout}"
+                       class="w-full inline-flex justify-center rounded-lg bg-emerald-600 text-white px-4 py-2 text-sm hover:bg-emerald-500">
+                        Finalizar compra
+                    </a>
+                </div>
+            </aside>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>

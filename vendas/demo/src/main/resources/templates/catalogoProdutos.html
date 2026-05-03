@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title th:fragment="title">Catálogo de Produtos</title>
+</head>
+<body>
+<th:block th:fragment="content">
+    <div th:replace="~{fragments/catalog-toolbar :: toolbar}"></div>
+
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        <form th:action="@{/catalogoProdutos}" method="get" class="lg:hidden mb-4">
+            <input type="text" name="busca" th:value="${busca}" placeholder="Buscar produto"
+                   class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400">
+        </form>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <aside class="lg:col-span-3">
+                <form th:action="@{/catalogoProdutos}" method="get" class="bg-white rounded-xl border border-slate-200 p-4 space-y-4">
+                    <h2 class="font-semibold text-lg text-slate-900">Filtros</h2>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Busca</label>
+                        <input type="text" name="busca" th:value="${busca}"
+                               class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Tipo</label>
+                        <select name="tipo" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                            <option value="">Todos</option>
+                            <option th:each="tipo : ${tipos}" th:value="${tipo}" th:text="${tipo}" th:selected="${tipoSelecionado == tipo}"></option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Cor</label>
+                        <select name="cor" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                            <option value="">Todas</option>
+                            <option th:each="cor : ${cores}" th:value="${cor}" th:text="${cor}" th:selected="${corSelecionada == cor}"></option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Tamanho</label>
+                        <select name="tamanho" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                            <option value="">Todos</option>
+                            <option th:each="tamanho : ${tamanhos}" th:value="${tamanho}" th:text="${tamanho}" th:selected="${tamanhoSelecionado == tamanho}"></option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Preço mín</label>
+                            <input type="number" name="precoMin" th:value="${precoMin}" min="0" step="0.01"
+                                   class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Preço máx</label>
+                            <input type="number" name="precoMax" th:value="${precoMax}" min="0" step="0.01"
+                                   class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Ordenar por</label>
+                        <select name="ordenacao" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                            <option value="">Mais relevantes</option>
+                            <option value="precoAsc" th:selected="${ordenacao == 'precoAsc'}">Mais barato</option>
+                            <option value="precoDesc" th:selected="${ordenacao == 'precoDesc'}">Mais caro</option>
+                        </select>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button type="submit" class="flex-1 rounded-lg bg-slate-900 text-white py-2 text-sm hover:bg-slate-700">Aplicar</button>
+                        <a th:href="@{/catalogoProdutos}"
+                           class="flex-1 rounded-lg border border-slate-300 py-2 text-sm text-center hover:bg-slate-100">Limpar</a>
+                    </div>
+                </form>
+            </aside>
+
+            <section class="lg:col-span-9">
+                <div class="flex items-center justify-between mb-4">
+                    <h1 class="text-xl font-semibold text-slate-900">Catálogo</h1>
+                    <p class="text-sm text-slate-500" th:text="${#lists.size(produtos)} + ' produto(s)'">0 produto(s)</p>
+                </div>
+
+                <div th:if="${#lists.isEmpty(produtos)}"
+                     class="bg-white rounded-xl border border-slate-200 p-10 text-center text-slate-500">
+                    Nenhum produto encontrado com os filtros selecionados.
+                </div>
+
+                <div th:if="${!#lists.isEmpty(produtos)}" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                    <article th:each="produto : ${produtos}"
+                             class="bg-white rounded-xl border border-slate-200 overflow-hidden transition hover:-translate-y-1 hover:shadow-lg">
+                        <a th:href="@{/produto/{id}(id=${produto.id})}" class="block">
+                            <img th:if="${produto.imagemPath != null}" th:src="@{|/images/${produto.imagemPath}|}"
+                                 th:alt="${produto.nome}" loading="lazy"
+                                 class="h-56 w-full object-cover">
+                            <div th:if="${produto.imagemPath == null}"
+                                 class="h-56 w-full bg-slate-100 flex items-center justify-center text-slate-400">
+                                Sem imagem
+                            </div>
+                        </a>
+
+                        <div class="p-4 space-y-2">
+                            <div class="flex items-start justify-between gap-3">
+                                <h2 class="font-semibold leading-tight text-slate-900" th:text="${produto.nome}">Nome do Produto</h2>
+                                <span class="text-xs shrink-0 rounded-full bg-emerald-100 text-emerald-700 px-2 py-1">Novo</span>
+                            </div>
+                            <p class="text-sm text-slate-500" th:text="${produto.tipoProduto}">Tipo</p>
+                            <p class="text-lg font-bold text-slate-900" th:text="'R$ ' + ${#numbers.formatDecimal(produto.preco, 1, 2)}">R$ 0,00</p>
+
+                            <form th:action="@{/adicionarCarrinho}" method="post" class="space-y-2 pt-1">
+                                <input type="hidden" name="produtoId" th:value="${produto.id}">
+
+                                <div class="grid grid-cols-2 gap-2">
+                                    <select name="tamanho"
+                                            class="rounded-lg border border-slate-300 px-2 py-2 text-sm">
+                                        <option th:each="tam : ${produto.tamanhosDisponiveis}" th:value="${tam}" th:text="${tam}"></option>
+                                    </select>
+                                    <select name="cor" class="rounded-lg border border-slate-300 px-2 py-2 text-sm">
+                                        <option value="">Sem cor</option>
+                                        <option th:each="c : ${produto.coresDisponiveis}" th:value="${c}" th:text="${c}"></option>
+                                    </select>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="number" name="quantidade" min="1" value="1"
+                                           class="rounded-lg border border-slate-300 px-2 py-2 text-sm">
+                                    <button type="submit"
+                                            class="rounded-lg bg-emerald-600 text-white text-sm py-2 hover:bg-emerald-500">
+                                        Adicionar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </article>
+                </div>
+            </section>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title th:fragment="title">Sistema de Vendas</title>
+</head>
+<body>
+<th:block th:fragment="content">
+    <div class="max-w-xl mx-auto px-4 py-16 text-center">
+        <div class="bg-white rounded-xl border border-slate-200 p-10 shadow-sm space-y-4">
+            <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Bem-vindo</h1>
+            <p class="text-slate-600">
+                Gestão integrada do catálogo, pedidos e suporte — com visual unificado ao e-commerce público.
+            </p>
+            <div class="flex flex-wrap justify-center gap-3 pt-4">
+                <a th:href="@{/catalogoProdutos}"
+                   class="rounded-lg bg-emerald-600 text-white px-5 py-2.5 text-sm font-medium hover:bg-emerald-500">
+                    Ver catálogo
+                </a>
+                <a th:href="@{/login}"
+                   class="rounded-lg bg-slate-900 text-white px-5 py-2.5 text-sm font-medium hover:bg-slate-700">
+                    Login
+                </a>
+                <a th:href="@{/register}"
+                   class="rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                    Cadastrar-se
+                </a>
+            </div>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>

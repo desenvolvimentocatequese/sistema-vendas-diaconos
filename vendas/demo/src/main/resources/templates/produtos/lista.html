@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title th:fragment="title">Gestão de produtos</title>
+</head>
+<body>
+<th:block th:fragment="content">
+    <div class="max-w-7xl mx-auto px-4 py-8 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">Produtos</h1>
+                <p class="text-sm text-slate-500 mt-1">Cadastro para o catálogo</p>
+            </div>
+            <a th:href="@{/produtos/novo}"
+               class="inline-flex justify-center rounded-lg bg-emerald-600 text-white px-4 py-2 text-sm hover:bg-emerald-500 shrink-0">
+                Novo produto
+            </a>
+        </div>
+
+        <div class="bg-white rounded-xl border border-slate-200 p-4">
+            <form method="get" th:action="@{/produtos}" class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+                <div class="md:col-span-4">
+                    <label for="nome" class="block text-sm font-medium text-slate-700 mb-1">Nome</label>
+                    <input type="text" id="nome" name="nome" th:value="${filtroNome}"
+                           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                </div>
+                <div class="md:col-span-3">
+                    <label for="tipo" class="block text-sm font-medium text-slate-700 mb-1">Tipo</label>
+                    <select id="tipo" name="tipo" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                        <option value="">Todos</option>
+                        <option th:each="tipo : ${tipos}" th:value="${tipo}" th:text="${tipo}"
+                                th:selected="${filtroTipo == tipo}"></option>
+                    </select>
+                </div>
+                <div class="md:col-span-3">
+                    <label for="ativo" class="block text-sm font-medium text-slate-700 mb-1">Status</label>
+                    <select id="ativo" name="ativo" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                        <option value="">Todos</option>
+                        <option value="true" th:selected="${filtroAtivo != null && filtroAtivo}">Ativo</option>
+                        <option value="false" th:selected="${filtroAtivo != null && !filtroAtivo}">Inativo</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2 flex gap-2">
+                    <button type="submit"
+                            class="flex-1 rounded-lg bg-slate-900 text-white py-2 text-sm hover:bg-slate-700">Filtrar</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-xl border border-slate-200 overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead>
+                <tr class="border-b border-slate-200 bg-slate-50 text-left text-slate-600">
+                    <th class="p-4 font-semibold">Imagem</th>
+                    <th class="p-4 font-semibold">Nome</th>
+                    <th class="p-4 font-semibold">Tipo</th>
+                    <th class="p-4 font-semibold">Preço</th>
+                    <th class="p-4 font-semibold">Ativo</th>
+                    <th class="p-4 font-semibold">Tamanhos</th>
+                    <th class="p-4 font-semibold">Cores</th>
+                    <th class="p-4 font-semibold">Ações</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200">
+                <tr th:each="produto : ${produtos}" class="hover:bg-slate-50/80">
+                    <td class="p-4">
+                        <img th:if="${produto.imagemPath != null}" th:src="@{|/images/${produto.imagemPath}|}"
+                             class="w-14 h-14 object-cover rounded-lg border border-slate-200" alt="imagem produto">
+                        <span th:if="${produto.imagemPath == null}" class="text-slate-400">—</span>
+                    </td>
+                    <td class="p-4 font-medium text-slate-900" th:text="${produto.nome}"></td>
+                    <td class="p-4 text-slate-600" th:text="${produto.tipoProduto}"></td>
+                    <td class="p-4 text-slate-900" th:text="'R$ ' + ${#numbers.formatDecimal(produto.preco, 1, 2)}"></td>
+                    <td class="p-4">
+                        <span th:if="${produto.ativo}"
+                              class="inline-flex px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">Ativo</span>
+                        <span th:unless="${produto.ativo}"
+                              class="inline-flex px-2.5 py-1 rounded-full text-xs font-medium bg-slate-200 text-slate-700">Inativo</span>
+                    </td>
+                    <td class="p-4 text-slate-600"
+                        th:text="${produto.tamanhosDisponiveis != null && !produto.tamanhosDisponiveis.isEmpty()} ? ${#strings.listJoin(produto.tamanhosDisponiveis, ', ')} : '-'"></td>
+                    <td class="p-4 text-slate-600"
+                        th:text="${produto.coresDisponiveis != null && !produto.coresDisponiveis.isEmpty()} ? ${#strings.listJoin(produto.coresDisponiveis, ', ')} : '-'"></td>
+                    <td class="p-4">
+                        <div class="flex flex-wrap gap-2">
+                            <a th:href="@{/produtos/editar/{id}(id=${produto.id})}"
+                               class="px-3 py-1.5 rounded-lg border border-amber-300 text-amber-900 text-xs hover:bg-amber-50">Editar</a>
+                            <a th:href="@{/produtos/deletar/{id}(id=${produto.id})}"
+                               class="px-3 py-1.5 rounded-lg border border-red-200 text-red-700 text-xs hover:bg-red-50"
+                               onclick="return confirm('Tem certeza que deseja excluir este produto?')">Excluir</a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>
