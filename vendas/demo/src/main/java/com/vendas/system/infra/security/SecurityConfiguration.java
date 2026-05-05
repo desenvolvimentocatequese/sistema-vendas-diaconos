@@ -20,12 +20,19 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfiguration {
 
+    private static final String[] LOJA_ROLES = {"CLIENTE", "ADMIN", "USER_COMUM", "RESPONSAVEL_SETOR"};
+    private static final String[] EQUIPE_ROLES = {"ADMIN", "USER_COMUM", "RESPONSAVEL_SETOR"};
+
     private final SecurityFilter securityFilter;
     private final CustomUserDetailsService customUserDetailsService;
+    private final RoleBasedLoginSuccessHandler roleBasedLoginSuccessHandler;
 
-    public SecurityConfiguration(SecurityFilter securityFilter, CustomUserDetailsService customUserDetailsService) {
+    public SecurityConfiguration(SecurityFilter securityFilter,
+                                 CustomUserDetailsService customUserDetailsService,
+                                 RoleBasedLoginSuccessHandler roleBasedLoginSuccessHandler) {
         this.securityFilter = securityFilter;
         this.customUserDetailsService = customUserDetailsService;
+        this.roleBasedLoginSuccessHandler = roleBasedLoginSuccessHandler;
     }
 
     @Bean
@@ -41,32 +48,47 @@ public class SecurityConfiguration {
                         session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 )
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(request -> {
-                            String uri = request.getRequestURI() != null ? request.getRequestURI() : "";
-                            String path = request.getServletPath() != null ? request.getServletPath() : "";
-                            String p = uri.isEmpty() ? path : uri;
-                            return p.startsWith("/auth/") || p.contains("/auth/")
-                                    || p.startsWith("/h2-console") || p.contains("/h2-console")
-                                    || p.startsWith("/actuator/health") || p.contains("/actuator/health")
-                                    || p.equals("/log") || p.endsWith("/log")
-                                    || p.startsWith("/dev/") || p.contains("/dev/")
-                                    || p.equals("/login") || p.startsWith("/css/") || p.startsWith("/js/")
-                                    || p.equals("/register") || p.equals("/catalogoProdutos") || p.startsWith("/images/") || p.equals("/index")
-                                    || p.startsWith("/produto/") || p.equals("/adicionarCarrinho") || p.equals("/carrinho")
-                                    || p.equals("/carrinho/remover") || p.equals("/checkout") || p.equals("/finalizarPedido");
-                        }).permitAll()
+                        .requestMatchers(
+                                "/login",
+                                "/register",
+                                "/error",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**",
+                                "/h2-console/**",
+                                "/actuator/health",
+                                "/log",
+                                "/log/**",
+                                "/dev/**"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/catalogoProdutos", "/produto/**", "/index").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/register").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/auth/health").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/register").hasRole("ADMIN")
+                        .requestMatchers("/dashboard", "/produtos/**", "/pedidos/**", "/chamados/**")
+                                .hasAnyRole(EQUIPE_ROLES)
+                        .requestMatchers(HttpMethod.POST, "/adicionarCarrinho").hasAnyRole(LOJA_ROLES)
+                        .requestMatchers(HttpMethod.GET, "/carrinho").hasAnyRole(LOJA_ROLES)
+                        .requestMatchers(HttpMethod.POST, "/carrinho/remover").hasAnyRole(LOJA_ROLES)
+                        .requestMatchers(HttpMethod.GET, "/checkout").hasAnyRole(LOJA_ROLES)
+                        .requestMatchers(HttpMethod.POST, "/finalizarPedido").hasAnyRole(LOJA_ROLES)
                         .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/**").hasAnyRole("ADMIN", "USER_COMUM")
                         .requestMatchers(HttpMethod.PUT, "/**").hasAnyRole("ADMIN", "USER_COMUM")
                         .requestMatchers(HttpMethod.PATCH, "/**").hasAnyRole("ADMIN", "USER_COMUM")
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(ex -> ex
+                        .accessDeniedHandler((request, response, accessDeniedException) ->
+                                response.sendRedirect(request.getContextPath() + "/catalogoProdutos?acesso=negado"))
+                )
                 .authenticationProvider(authProvider)
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
-                        .successHandler((request, response, authentication) -> response.sendRedirect("/dashboard"))
+                        .successHandler(roleBasedLoginSuccessHandler)
                         .failureUrl("/login?error")
                         .permitAll()
                 )

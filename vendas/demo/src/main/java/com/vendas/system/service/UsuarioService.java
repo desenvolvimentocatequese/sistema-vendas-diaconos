@@ -1,7 +1,9 @@
 package com.vendas.system.service;
 
+import com.vendas.system.dto.ClienteRegisterDTO;
 import com.vendas.system.dto.RegisterRequestDTO;
 import com.vendas.system.model.UsuarioModel;
+import com.vendas.system.model.UsuarioRole;
 import com.vendas.system.repository.UsuarioRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,6 +27,18 @@ public class UsuarioService {
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.tokenService = tokenService;
+    }
+
+    public UsuarioModel registrarCliente(ClienteRegisterDTO dados) {
+        RegisterRequestDTO comPerfilCliente = new RegisterRequestDTO(
+                dados.nome(),
+                dados.email(),
+                dados.senha(),
+                dados.cpf(),
+                UsuarioRole.CLIENTE,
+                dados.telefone()
+        );
+        return registrar(comPerfilCliente);
     }
 
     public UsuarioModel registrar(RegisterRequestDTO dados) {

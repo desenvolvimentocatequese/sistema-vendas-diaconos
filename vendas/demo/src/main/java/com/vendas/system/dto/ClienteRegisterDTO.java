@@ -1,15 +1,12 @@
 package com.vendas.system.dto;
 
-import com.vendas.system.model.UsuarioRole;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
-public record RegisterRequestDTO(
+public record ClienteRegisterDTO(
         @NotBlank String nome,
         @NotBlank String email,
         @NotBlank String senha,
         @NotBlank String cpf,
-        @NotNull UsuarioRole role,
         @NotBlank String telefone
 ) {
 }

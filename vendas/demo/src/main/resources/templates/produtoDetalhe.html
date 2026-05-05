@@ -32,6 +32,11 @@
                     <span th:each="cor, iter : ${produto.coresDisponiveis}" th:text="${cor + (!iter.last ? ', ' : '')}"></span>
                 </div>
 
+                <p th:unless="${usuarioLogado}" class="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                    <a th:href="@{/login}" class="font-medium underline">Faça login</a> para adicionar ao carrinho e finalizar a compra.
+                    Sem conta? <a th:href="@{/register}" class="font-medium underline">Cadastre-se como cliente</a>.
+                </p>
+
                 <form th:action="@{/adicionarCarrinho}" method="post" class="space-y-4 pt-2 border-t border-slate-100">
                     <input type="hidden" name="produtoId" th:value="${produto.id}">
 

@@ -98,6 +98,10 @@ public class UsuarioModel implements UserDetails {
             return List.of(
                     new SimpleGrantedAuthority("ROLE_RESPONSAVEL_SETOR")
             );
+        } else if (this.role == UsuarioRole.CLIENTE) {
+            return List.of(
+                    new SimpleGrantedAuthority("ROLE_CLIENTE")
+            );
         } else {
             return List.of(
                     new SimpleGrantedAuthority("ROLE_USER_COMUM")

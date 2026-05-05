@@ -8,10 +8,12 @@
             <nav class="flex flex-wrap gap-2 text-sm" aria-label="Navegação principal">
                 <a th:href="@{/catalogoProdutos}"
                    class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Catálogo</a>
-                <a th:href="@{/produtos}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Gestão produtos</a>
-                <a th:href="@{/pedidos}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Pedidos</a>
-                <a th:href="@{/chamados}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Chamados</a>
-                <a th:href="@{/dashboard}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Painel</a>
+                <th:block th:if="${podeAcessarGestao}">
+                    <a th:href="@{/produtos}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Gestão produtos</a>
+                    <a th:href="@{/pedidos}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Pedidos</a>
+                    <a th:href="@{/chamados}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Chamados</a>
+                    <a th:href="@{/dashboard}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Painel</a>
+                </th:block>
             </nav>
         </div>
         <div class="flex items-center gap-2 flex-wrap lg:justify-end">

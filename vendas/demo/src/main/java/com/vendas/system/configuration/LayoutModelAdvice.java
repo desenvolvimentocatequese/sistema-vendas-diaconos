@@ -7,6 +7,8 @@ import com.vendas.system.controller.WebController;
 import com.vendas.system.model.Cor;
 import com.vendas.system.model.Tamanho;
 import com.vendas.system.model.TipoProduto;
+import com.vendas.system.model.UsuarioModel;
+import com.vendas.system.model.UsuarioRole;
 import com.vendas.system.model.cart.Carrinho;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -52,5 +54,19 @@ public class LayoutModelAdvice {
             return false;
         }
         return !(authentication instanceof AnonymousAuthenticationToken);
+    }
+
+    /** Gestão interna (produtos, pedidos, chamados, painel) — oculto para perfil CLIENTE. */
+    @ModelAttribute("podeAcessarGestao")
+    public boolean podeAcessarGestao() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication instanceof AnonymousAuthenticationToken) {
+            return false;
+        }
+        if (!(authentication.getPrincipal() instanceof UsuarioModel usuario)) {
+            return false;
+        }
+        return usuario.getRole() != UsuarioRole.CLIENTE;
     }
 }

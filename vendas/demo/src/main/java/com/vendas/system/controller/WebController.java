@@ -1,7 +1,7 @@
 package com.vendas.system.controller;
 
 import com.vendas.system.dto.CheckoutDTO;
-import com.vendas.system.dto.RegisterRequestDTO;
+import com.vendas.system.dto.ClienteRegisterDTO;
 import com.vendas.system.model.Cor;
 import com.vendas.system.model.Tamanho;
 import com.vendas.system.model.TipoProduto;
@@ -12,10 +12,13 @@ import com.vendas.system.service.PedidoService;
 import com.vendas.system.service.ProdutoService;
 import com.vendas.system.service.UsuarioService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,18 +47,22 @@ public class WebController {
 
     @GetMapping("/register")
     public String register(Model model) {
-        model.addAttribute("registerRequest", new RegisterRequestDTO("", "", "", "",null, ""));
+        model.addAttribute("clienteRegister", new ClienteRegisterDTO("", "", "", "", ""));
         return "register";
     }
 
     @PostMapping("/register")
-    public String registerUser(RegisterRequestDTO registerRequest, Model model) {
+    public String registerUser(@Valid @ModelAttribute("clienteRegister") ClienteRegisterDTO dados,
+                               BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            return "register";
+        }
         try {
-            usuarioService.registrar(registerRequest);
+            usuarioService.registrarCliente(dados);
             return "redirect:/login?success";
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
-            model.addAttribute("registerRequest", registerRequest);
+            model.addAttribute("clienteRegister", dados);
             return "register";
         }
     }
@@ -162,7 +169,8 @@ public class WebController {
         }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication instanceof AnonymousAuthenticationToken) {
             return "redirect:/login";
         }
         UsuarioModel usuario = (UsuarioModel) authentication.getPrincipal();

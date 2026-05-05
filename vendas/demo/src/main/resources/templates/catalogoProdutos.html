@@ -8,6 +8,12 @@
 <th:block th:fragment="content">
     <div th:replace="~{fragments/catalog-toolbar :: toolbar}"></div>
 
+    <div th:if="${param.acesso}" class="max-w-7xl mx-auto px-4 pt-4">
+        <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            Esta área é restrita à equipe. Use o catálogo e o carrinho para comprar.
+        </div>
+    </div>
+
     <div class="max-w-7xl mx-auto px-4 py-6">
         <form th:action="@{/catalogoProdutos}" method="get" class="lg:hidden mb-4">
             <input type="text" name="busca" th:value="${busca}" placeholder="Buscar produto"
