@@ -3,6 +3,7 @@ package com.vendas.system.configuration;
 import com.vendas.system.controller.ChamadoController;
 import com.vendas.system.controller.PedidoController;
 import com.vendas.system.controller.ProdutoController;
+import com.vendas.system.controller.EquipeUsuarioController;
 import com.vendas.system.controller.WebController;
 import com.vendas.system.model.Cor;
 import com.vendas.system.model.Tamanho;
@@ -17,7 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
-@ControllerAdvice(assignableTypes = {WebController.class, ProdutoController.class, ChamadoController.class, PedidoController.class})
+@ControllerAdvice(assignableTypes = {WebController.class, ProdutoController.class, ChamadoController.class, PedidoController.class, EquipeUsuarioController.class})
 public class LayoutModelAdvice {
 
     @ModelAttribute("tipos")
@@ -68,5 +69,19 @@ public class LayoutModelAdvice {
             return false;
         }
         return usuario.getRole() != UsuarioRole.CLIENTE;
+    }
+
+    /** Cadastro de usuários internos (admin, equipe) — apenas administradores. */
+    @ModelAttribute("usuarioEhAdmin")
+    public boolean usuarioEhAdmin() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication instanceof AnonymousAuthenticationToken) {
+            return false;
+        }
+        if (!(authentication.getPrincipal() instanceof UsuarioModel usuario)) {
+            return false;
+        }
+        return usuario.getRole() == UsuarioRole.ADMIN;
     }
 }

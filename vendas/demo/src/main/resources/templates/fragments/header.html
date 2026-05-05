@@ -13,6 +13,8 @@
                     <a th:href="@{/pedidos}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Pedidos</a>
                     <a th:href="@{/chamados}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Chamados</a>
                     <a th:href="@{/dashboard}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Painel</a>
+                    <a th:if="${usuarioEhAdmin}" th:href="@{/equipe/usuarios/novo}"
+                       class="px-3 py-1.5 rounded-full border border-violet-300 bg-violet-50 hover:bg-violet-100 text-violet-900">Usuários equipe</a>
                 </th:block>
             </nav>
         </div>

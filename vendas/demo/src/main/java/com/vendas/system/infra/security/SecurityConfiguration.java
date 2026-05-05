@@ -66,6 +66,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/auth/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/register").hasRole("ADMIN")
+                        .requestMatchers("/equipe/**").hasRole("ADMIN")
                         .requestMatchers("/dashboard", "/produtos/**", "/pedidos/**", "/chamados/**")
                                 .hasAnyRole(EQUIPE_ROLES)
                         .requestMatchers(HttpMethod.POST, "/adicionarCarrinho").hasAnyRole(LOJA_ROLES)
