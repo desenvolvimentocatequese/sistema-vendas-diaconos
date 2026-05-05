@@ -27,7 +27,8 @@ public class ProdutoService {
     }
 
     public List<ProdutoModel> findByFiltros(String nome, TipoProduto tipoProduto, Boolean ativo) {
-        return produtoRepository.findByFiltros(nome, tipoProduto, ativo);
+        String tipoProdutoString = tipoProduto != null ? tipoProduto.name() : null;
+        return produtoRepository.findByFiltros(nome,tipoProdutoString, ativo);
     }
 
     public List<ProdutoModel> buscarCatalogo(String busca,

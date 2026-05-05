@@ -38,6 +38,11 @@ public class ProdutoController {
                                  @RequestParam(value = "tipo", required = false) TipoProduto tipo,
                                  @RequestParam(value = "ativo", required = false) Boolean ativo,
                                  Model model) {
+
+        if (nome != null && nome.trim().isEmpty()) {
+                nome = null;
+        }
+
         model.addAttribute("produtos", produtoService.findByFiltros(nome, tipo, ativo));
         model.addAttribute("tipos", TipoProduto.values());
         model.addAttribute("filtroNome", nome);
