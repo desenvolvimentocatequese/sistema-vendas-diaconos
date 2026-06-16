@@ -1,8 +1,11 @@
 HELP.md
 target/
 
-# H2 em arquivo (dados locais de desenvolvimento)
+# H2 em arquivo (dados locais e homologação)
 /data/
+/data/local/
+/data/homol/
+/data/prod/
 *.mv.db
 *.trace.db
 .mvn/wrapper/maven-wrapper.jar

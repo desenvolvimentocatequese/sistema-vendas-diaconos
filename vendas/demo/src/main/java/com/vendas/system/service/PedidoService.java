@@ -1,15 +1,14 @@
 package com.vendas.system.service;
 
-import com.vendas.system.model.ItemPedidoModel;
-import com.vendas.system.model.PedidoModel;
-import com.vendas.system.model.StatusPedido;
-import com.vendas.system.model.TipoEntrega;
-import com.vendas.system.model.UsuarioModel;
+import com.vendas.system.model.*;
 import com.vendas.system.model.cart.CarrinhoItem;
+import com.vendas.system.repository.CorRepository;
 import com.vendas.system.repository.ItemPedidoRepository;
+import com.vendas.system.repository.ItemPadronizadoRepository;
 import com.vendas.system.repository.PedidoRepository;
-import com.vendas.system.repository.ProdutoRepository;
+import com.vendas.system.repository.TamanhoRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -22,12 +21,26 @@ public class PedidoService {
 
     private final PedidoRepository pedidoRepository;
     private final ItemPedidoRepository itemPedidoRepository;
-    private final ProdutoRepository produtoRepository;
+    private final ItemPadronizadoRepository itemRepository;
+    private final CorRepository corRepository;
+    private final TamanhoRepository tamanhoRepository;
+    private final ConfiguracaoSistemaService configuracaoService;
+    private final EstoqueService estoqueService;
 
-    public PedidoService(PedidoRepository pedidoRepository, ItemPedidoRepository itemPedidoRepository, ProdutoRepository produtoRepository) {
+    public PedidoService(PedidoRepository pedidoRepository,
+                         ItemPedidoRepository itemPedidoRepository,
+                         ItemPadronizadoRepository itemRepository,
+                         CorRepository corRepository,
+                         TamanhoRepository tamanhoRepository,
+                         ConfiguracaoSistemaService configuracaoService,
+                         EstoqueService estoqueService) {
         this.pedidoRepository = pedidoRepository;
         this.itemPedidoRepository = itemPedidoRepository;
-        this.produtoRepository = produtoRepository;
+        this.itemRepository = itemRepository;
+        this.corRepository = corRepository;
+        this.tamanhoRepository = tamanhoRepository;
+        this.configuracaoService = configuracaoService;
+        this.estoqueService = estoqueService;
     }
 
     public List<PedidoModel> findAll() {
@@ -54,44 +67,77 @@ public class PedidoService {
         pedidoRepository.deleteById(id);
     }
 
-    public PedidoModel salvarPedidoComItens(UsuarioModel usuario, String tipoEntrega, String endereco, List<CarrinhoItem> itensCarrinho) {
-        // Criar o pedido
+    @Transactional
+    public PedidoModel salvarPedidoComItens(UsuarioModel usuario, String tipoEntrega, String endereco,
+                                            List<CarrinhoItem> itensCarrinho) {
+        for (CarrinhoItem itemCarrinho : itensCarrinho) {
+            estoqueService.validarDisponibilidade(
+                    itemCarrinho.getItemId(),
+                    itemCarrinho.getCorId(),
+                    itemCarrinho.getTamanhoId(),
+                    itemCarrinho.getQuantidade()
+            );
+        }
+
+        boolean modoSolicitacao = configuracaoService.isModoSolicitacao();
+
         PedidoModel pedido = new PedidoModel();
         pedido.setUsuario(usuario);
         pedido.setStatus(StatusPedido.NOVO);
-        pedido.setTipoEntrega(TipoEntrega.valueOf(tipoEntrega));
-        pedido.setEnderecoEntrega(endereco);
         pedido.setDataCriacao(LocalDateTime.now());
-        
-        // Calcular total
+
+        if (modoSolicitacao) {
+            pedido.setTipoEntrega(TipoEntrega.SOLICITACAO);
+            pedido.setTaxaEntrega(BigDecimal.ZERO);
+        } else if (tipoEntrega != null && !tipoEntrega.isBlank()) {
+            pedido.setTipoEntrega(TipoEntrega.valueOf(tipoEntrega));
+            pedido.setEnderecoEntrega(endereco);
+            BigDecimal taxaEntrega = "ENTREGA".equals(tipoEntrega) ? new BigDecimal("10.00") : BigDecimal.ZERO;
+            pedido.setTaxaEntrega(taxaEntrega);
+        } else {
+            pedido.setTipoEntrega(TipoEntrega.RETIRADA);
+            pedido.setTaxaEntrega(BigDecimal.ZERO);
+        }
+
         BigDecimal totalProdutos = itensCarrinho.stream()
                 .map(CarrinhoItem::getSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        
-        BigDecimal taxaEntrega = tipoEntrega.equals("ENTREGA") ? new BigDecimal("10.00") : BigDecimal.ZERO;
-        BigDecimal totalFinal = totalProdutos.add(taxaEntrega);
-        
-        pedido.setTaxaEntrega(taxaEntrega);
-        pedido.setValorTotal(totalFinal);
-        
-        // Salvar pedido primeiro
+        pedido.setValorTotal(modoSolicitacao ? BigDecimal.ZERO : totalProdutos.add(pedido.getTaxaEntrega()));
+
         PedidoModel pedidoSalvo = pedidoRepository.save(pedido);
-        
-        // Criar e salvar itens do pedido
+
         List<ItemPedidoModel> itens = new ArrayList<>();
         for (CarrinhoItem itemDTO : itensCarrinho) {
             ItemPedidoModel item = new ItemPedidoModel();
             item.setPedido(pedidoSalvo);
-            item.setProduto(produtoRepository.findById(itemDTO.getProdutoId()).orElse(null));
+            item.setItem(itemRepository.findById(itemDTO.getItemId()).orElse(null));
             item.setQuantidade(itemDTO.getQuantidade());
-            item.setPrecoUnitario(itemDTO.getPreco());
-            item.setValorTotal(itemDTO.getSubtotal());
-            item.setTamanho(itemDTO.getTamanho());
-            item.setCor(itemDTO.getCor());
+
+            if (!modoSolicitacao) {
+                item.setPrecoUnitario(itemDTO.getPreco());
+                item.setValorTotal(itemDTO.getSubtotal());
+            }
+
+            if (itemDTO.getTamanhoId() != null) {
+                tamanhoRepository.findById(itemDTO.getTamanhoId()).ifPresent(item::setTamanho);
+            }
+            if (itemDTO.getCorId() != null) {
+                corRepository.findById(itemDTO.getCorId()).ifPresent(item::setCor);
+            }
+
             itemPedidoRepository.save(item);
             itens.add(item);
         }
-        
+
+        for (CarrinhoItem itemCarrinho : itensCarrinho) {
+            estoqueService.debitar(
+                    itemCarrinho.getItemId(),
+                    itemCarrinho.getCorId(),
+                    itemCarrinho.getTamanhoId(),
+                    itemCarrinho.getQuantidade()
+            );
+        }
+
         pedidoSalvo.setItens(itens);
         return pedidoSalvo;
     }

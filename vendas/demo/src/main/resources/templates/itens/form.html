@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head><title th:fragment="title">Item padronizado</title></head>
+<body>
+<th:block th:fragment="content">
+    <div class="max-w-2xl mx-auto px-4 py-8">
+        <h1 class="text-2xl font-bold mb-6" th:text="${item.id != null} ? 'Editar item' : 'Novo item'"></h1>
+        <div th:if="${erroUpload}" class="mb-4 text-red-700 text-sm" th:text="${erroUpload}"></div>
+        <form th:action="@{/itens}" method="post" th:object="${item}" enctype="multipart/form-data"
+              class="bg-white rounded-xl border p-6 space-y-5">
+            <input type="hidden" th:field="*{id}">
+            <div class="grid grid-cols-2 gap-4">
+                <div><label class="block text-sm font-medium mb-1">Código</label>
+                    <input type="text" th:field="*{codigo}" placeholder="F03" class="w-full rounded-lg border px-3 py-2 text-sm font-mono">
+                    <p class="text-red-600 text-sm" th:errors="*{codigo}"></p></div>
+                <div><label class="block text-sm font-medium mb-1">Categoria</label>
+                    <select name="categoria.id" th:field="*{categoria.id}" class="w-full rounded-lg border px-3 py-2 text-sm">
+                        <option value="">Selecione...</option>
+                        <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nome}"></option>
+                    </select>
+                    <p class="text-red-600 text-sm" th:errors="*{categoria}"></p></div>
+            </div>
+            <div><label class="block text-sm font-medium mb-1">Nome</label>
+                <input type="text" th:field="*{nome}" class="w-full rounded-lg border px-3 py-2 text-sm">
+                <p class="text-red-600 text-sm" th:errors="*{nome}"></p></div>
+            <div><label class="block text-sm font-medium mb-1">Imagem</label>
+                <input type="file" name="imagem" accept="image/*" class="text-sm">
+                <img th:if="${item.imagemPath != null}" th:src="@{|/images/${item.imagemPath}|}" class="mt-2 max-h-32 rounded border"></div>
+            <div>
+                <span class="block text-sm font-medium mb-2">Cores disponíveis</span>
+                <div class="flex flex-wrap gap-4">
+                    <label th:each="cor : ${coresLista}" class="flex items-center gap-2 text-sm">
+                        <input type="checkbox" th:field="*{coresDisponiveis}" th:value="${cor.id}">
+                        <span th:text="${cor.nome}"></span>
+                    </label>
+                </div>
+            </div>
+            <div>
+                <span class="block text-sm font-medium mb-2">Tamanhos disponíveis</span>
+                <div class="flex flex-wrap gap-4 max-h-40 overflow-y-auto">
+                    <label th:each="tam : ${tamanhosLista}" class="flex items-center gap-2 text-sm">
+                        <input type="checkbox" th:field="*{tamanhosDisponiveis}" th:value="${tam.id}">
+                        <span th:text="${tam.nome}"></span>
+                    </label>
+                </div>
+                <p class="text-red-600 text-sm" th:errors="*{tamanhosDisponiveis}"></p>
+            </div>
+            <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+                <label class="block text-sm font-medium mb-1">Quantidade inicial em estoque</label>
+                <input type="number" name="quantidadeInicial" min="0" value="0"
+                       class="w-full rounded-lg border px-3 py-2 text-sm">
+                <p class="text-xs text-slate-600 mt-1">
+                    Gera um registro de estoque para cada combinação de tamanho × cor selecionados.
+                    Ex.: tamanhos 42 e 44 com quantidade 10 criam 2 registros (um por tamanho).
+                    Marcando várias cores, cria um registro por cor em cada tamanho.
+                </p>
+            </div>
+            <label class="flex items-center gap-2"><input type="checkbox" th:field="*{ativo}"> Ativo</label>
+            <div class="flex gap-3">
+                <button type="submit" class="rounded-lg bg-slate-900 text-white px-5 py-2 text-sm">Salvar</button>
+                <a th:href="@{/itens}" class="rounded-lg border px-5 py-2 text-sm">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</th:block>
+</body>
+</html>

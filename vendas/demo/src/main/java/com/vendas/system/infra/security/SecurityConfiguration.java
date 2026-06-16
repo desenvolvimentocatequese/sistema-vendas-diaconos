@@ -66,9 +66,13 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/auth/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/register").hasRole("ADMIN")
-                        .requestMatchers("/equipe/**").hasRole("ADMIN")
-                        .requestMatchers("/dashboard", "/produtos/**", "/pedidos/**", "/chamados/**")
+                        .requestMatchers("/equipe/**", "/configuracao/**").hasRole("ADMIN")
+                        .requestMatchers("/dashboard", "/produtos/**", "/itens/**", "/categorias/**",
+                                "/cores/**", "/tamanhos/**", "/estoque/**", "/pedidos/**", "/chamados/**",
+                                "/salas/**")
                                 .hasAnyRole(EQUIPE_ROLES)
+                        .requestMatchers(HttpMethod.POST, "/finalizarSolicitacao").hasAnyRole(LOJA_ROLES)
+                        .requestMatchers(HttpMethod.GET, "/finalizarSolicitacao").hasAnyRole(LOJA_ROLES)
                         .requestMatchers(HttpMethod.POST, "/adicionarCarrinho").hasAnyRole(LOJA_ROLES)
                         .requestMatchers(HttpMethod.GET, "/carrinho").hasAnyRole(LOJA_ROLES)
                         .requestMatchers(HttpMethod.POST, "/carrinho/remover").hasAnyRole(LOJA_ROLES)

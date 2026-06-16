@@ -28,7 +28,7 @@ public class PedidoModel {
 
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(nullable = false, length = 32)
+    @Column(length = 32)
     private TipoEntrega tipoEntrega;
 
     @Column(length = 255)
@@ -48,6 +48,15 @@ public class PedidoModel {
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ItemPedidoModel> itens;
+
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OrderBy("dataSaida ASC, id ASC")
+    private List<MovimentacaoPedidoModel> movimentacoes;
+
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(length = 32)
+    private LocalTramite localAtual;
 
     @Column(precision = 10, scale = 2)
     private BigDecimal valorTotal = BigDecimal.ZERO;
@@ -156,6 +165,22 @@ public class PedidoModel {
 
     public void setItens(List<ItemPedidoModel> itens) {
         this.itens = itens;
+    }
+
+    public List<MovimentacaoPedidoModel> getMovimentacoes() {
+        return movimentacoes;
+    }
+
+    public void setMovimentacoes(List<MovimentacaoPedidoModel> movimentacoes) {
+        this.movimentacoes = movimentacoes;
+    }
+
+    public LocalTramite getLocalAtual() {
+        return localAtual;
+    }
+
+    public void setLocalAtual(LocalTramite localAtual) {
+        this.localAtual = localAtual;
     }
 
     public BigDecimal getValorTotal() {

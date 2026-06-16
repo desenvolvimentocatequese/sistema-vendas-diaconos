@@ -4,15 +4,24 @@
 <header th:fragment="header" class="bg-white border-b border-slate-200 sticky top-0 z-20">
     <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div class="flex items-center gap-6 flex-wrap justify-between lg:justify-start">
-            <a th:href="@{/catalogoProdutos}" class="text-2xl font-bold tracking-tight text-slate-900">Sistema Vendas</a>
+            <a th:href="@{/catalogoProdutos}" class="text-2xl font-bold tracking-tight text-slate-900"
+               th:text="${modoSolicitacao} ? 'Sistema Solicitações' : 'Sistema Vendas'">Sistema</a>
             <nav class="flex flex-wrap gap-2 text-sm" aria-label="Navegação principal">
                 <a th:href="@{/catalogoProdutos}"
                    class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Catálogo</a>
                 <th:block th:if="${podeAcessarGestao}">
-                    <a th:href="@{/produtos}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Gestão produtos</a>
-                    <a th:href="@{/pedidos}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Pedidos</a>
+                    <a th:href="@{/itens}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Itens</a>
+                    <a th:href="@{/estoque}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Estoque</a>
+                    <a th:href="@{/categorias}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Categorias</a>
+                    <a th:href="@{/cores}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Cores</a>
+                    <a th:href="@{/tamanhos}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Tamanhos</a>
+                    <a th:href="@{/pedidos}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100"
+                       th:text="${labelPedidos}">Pedidos</a>
+                    <a th:href="@{/salas}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Salas de Costura</a>
                     <a th:href="@{/chamados}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Chamados</a>
                     <a th:href="@{/dashboard}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Painel</a>
+                    <a th:if="${usuarioEhAdmin}" th:href="@{/configuracao}"
+                       class="px-3 py-1.5 rounded-full border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 text-indigo-900">Configuração</a>
                     <a th:if="${usuarioEhAdmin}" th:href="@{/equipe/usuarios/novo}"
                        class="px-3 py-1.5 rounded-full border border-violet-300 bg-violet-50 hover:bg-violet-100 text-violet-900">Usuários equipe</a>
                 </th:block>
@@ -31,7 +40,7 @@
                 </button>
             </form>
             <a th:href="@{/carrinho}" class="relative rounded-lg border border-slate-300 px-3 py-2 hover:bg-slate-100">
-                <span class="text-sm font-medium">Carrinho</span>
+                <span class="text-sm font-medium" th:text="${labelCarrinho}">Carrinho</span>
                 <span class="absolute -top-2 -right-2 min-w-6 h-6 px-1 rounded-full bg-emerald-600 text-white text-xs flex items-center justify-center"
                       th:text="${carrinhoQuantidade}">0</span>
             </a>

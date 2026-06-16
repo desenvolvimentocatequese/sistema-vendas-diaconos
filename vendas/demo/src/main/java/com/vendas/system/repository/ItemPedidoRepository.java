@@ -1,8 +1,8 @@
 package com.vendas.system.repository;
 
+import com.vendas.system.model.ItemPadronizadoModel;
 import com.vendas.system.model.ItemPedidoModel;
 import com.vendas.system.model.PedidoModel;
-import com.vendas.system.model.ProdutoModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,7 +13,7 @@ public interface ItemPedidoRepository extends JpaRepository<ItemPedidoModel, Lon
 
     List<ItemPedidoModel> findByPedido(PedidoModel pedido);
 
-    List<ItemPedidoModel> findByProduto(ProdutoModel produto);
+    List<ItemPedidoModel> findByItem(ItemPadronizadoModel item);
 
     void deleteByPedido(PedidoModel pedido);
 }

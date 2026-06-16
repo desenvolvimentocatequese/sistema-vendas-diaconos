@@ -1,16 +1,13 @@
 package com.vendas.system.configuration;
 
-import com.vendas.system.controller.ChamadoController;
-import com.vendas.system.controller.PedidoController;
-import com.vendas.system.controller.ProdutoController;
-import com.vendas.system.controller.EquipeUsuarioController;
-import com.vendas.system.controller.WebController;
-import com.vendas.system.model.Cor;
-import com.vendas.system.model.Tamanho;
-import com.vendas.system.model.TipoProduto;
+import com.vendas.system.controller.*;
 import com.vendas.system.model.UsuarioModel;
 import com.vendas.system.model.UsuarioRole;
 import com.vendas.system.model.cart.Carrinho;
+import com.vendas.system.service.CategoriaItemService;
+import com.vendas.system.service.ConfiguracaoSistemaService;
+import com.vendas.system.service.CorService;
+import com.vendas.system.service.TamanhoService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,22 +15,67 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
-@ControllerAdvice(assignableTypes = {WebController.class, ProdutoController.class, ChamadoController.class, PedidoController.class, EquipeUsuarioController.class})
+@ControllerAdvice(assignableTypes = {
+        WebController.class, ItemPadronizadoController.class, ChamadoController.class,
+        PedidoController.class, EquipeUsuarioController.class, ConfiguracaoController.class,
+        CategoriaItemController.class, CorController.class, TamanhoController.class,
+        EstoqueController.class, SalaCosturaController.class, MovimentacaoPedidoController.class
+})
 public class LayoutModelAdvice {
 
-    @ModelAttribute("tipos")
-    public TipoProduto[] tiposTipoProduto() {
-        return TipoProduto.values();
+    private final CategoriaItemService categoriaService;
+    private final CorService corService;
+    private final TamanhoService tamanhoService;
+    private final ConfiguracaoSistemaService configuracaoService;
+
+    public LayoutModelAdvice(CategoriaItemService categoriaService,
+                             CorService corService,
+                             TamanhoService tamanhoService,
+                             ConfiguracaoSistemaService configuracaoService) {
+        this.categoriaService = categoriaService;
+        this.corService = corService;
+        this.tamanhoService = tamanhoService;
+        this.configuracaoService = configuracaoService;
+    }
+
+    @ModelAttribute("categorias")
+    public Object categorias() {
+        return categoriaService.findAtivas();
     }
 
     @ModelAttribute("cores")
-    public Cor[] cores() {
-        return Cor.values();
+    public Object cores() {
+        return corService.findAtivas();
     }
 
     @ModelAttribute("tamanhos")
-    public Tamanho[] tamanhos() {
-        return Tamanho.values();
+    public Object tamanhos() {
+        return tamanhoService.findAtivos();
+    }
+
+    @ModelAttribute("modoSolicitacao")
+    public boolean modoSolicitacao() {
+        return configuracaoService.isModoSolicitacao();
+    }
+
+    @ModelAttribute("labelPedido")
+    public String labelPedido() {
+        return configuracaoService.isModoSolicitacao() ? "Solicitação" : "Pedido";
+    }
+
+    @ModelAttribute("labelPedidos")
+    public String labelPedidos() {
+        return configuracaoService.isModoSolicitacao() ? "Solicitações" : "Pedidos";
+    }
+
+    @ModelAttribute("labelCarrinho")
+    public String labelCarrinho() {
+        return configuracaoService.isModoSolicitacao() ? "Solicitação" : "Carrinho";
+    }
+
+    @ModelAttribute("labelFinalizar")
+    public String labelFinalizar() {
+        return configuracaoService.isModoSolicitacao() ? "Enviar solicitação" : "Finalizar compra";
     }
 
     @ModelAttribute("carrinhoQuantidade")
@@ -45,9 +87,6 @@ public class LayoutModelAdvice {
         return carrinho.quantidadeTotalItens();
     }
 
-    /**
-     * Disponível em todos os fragmentos/layouts (Thymeleaf não expõe mais #request por padrão no Spring Boot 6+).
-     */
     @ModelAttribute("usuarioLogado")
     public boolean usuarioLogado() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -57,7 +96,6 @@ public class LayoutModelAdvice {
         return !(authentication instanceof AnonymousAuthenticationToken);
     }
 
-    /** Gestão interna (produtos, pedidos, chamados, painel) — oculto para perfil CLIENTE. */
     @ModelAttribute("podeAcessarGestao")
     public boolean podeAcessarGestao() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -71,7 +109,6 @@ public class LayoutModelAdvice {
         return usuario.getRole() != UsuarioRole.CLIENTE;
     }
 
-    /** Cadastro de usuários internos (admin, equipe) — apenas administradores. */
     @ModelAttribute("usuarioEhAdmin")
     public boolean usuarioEhAdmin() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

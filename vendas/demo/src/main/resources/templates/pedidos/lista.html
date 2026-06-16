@@ -8,7 +8,7 @@
 <th:block th:fragment="content">
     <div class="max-w-7xl mx-auto px-4 py-8 space-y-6">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <h1 class="text-2xl font-bold text-slate-900">Pedidos</h1>
+            <h1 class="text-2xl font-bold text-slate-900" th:text="${labelPedidos}">Pedidos</h1>
             <div class="flex gap-2">
                 <a th:href="@{/pedidos/kanban}"
                    class="inline-flex rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
@@ -16,7 +16,7 @@
                 </a>
                 <a th:href="@{/pedidos/novo}"
                    class="inline-flex rounded-lg bg-emerald-600 text-white px-4 py-2 text-sm font-medium hover:bg-emerald-500 shrink-0">
-                    Novo pedido
+                    <span th:text="'Nova ' + ${labelPedido.toLowerCase()}">Novo pedido</span>
                 </a>
             </div>
         </div>
@@ -28,8 +28,8 @@
                     <th class="p-4 font-semibold">ID</th>
                     <th class="p-4 font-semibold">Usuário</th>
                     <th class="p-4 font-semibold">Status</th>
-                    <th class="p-4 font-semibold">Tipo entrega</th>
-                    <th class="p-4 font-semibold">Total</th>
+                    <th th:unless="${modoSolicitacao}" class="p-4 font-semibold">Tipo entrega</th>
+                    <th th:unless="${modoSolicitacao}" class="p-4 font-semibold">Total</th>
                     <th class="p-4 font-semibold">Criado</th>
                     <th class="p-4 font-semibold">Ações</th>
                 </tr>
@@ -46,8 +46,8 @@
                         <span th:if="${pedido.status.name() == 'FINALIZADO'}"
                               class="inline-flex px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">FINALIZADO</span>
                     </td>
-                    <td class="p-4 text-slate-600" th:text="${pedido.tipoEntrega}"></td>
-                    <td class="p-4 text-slate-900 font-medium" th:text="${pedido.valorTotal}"></td>
+                    <td th:unless="${modoSolicitacao}" class="p-4 text-slate-600" th:text="${pedido.tipoEntrega}"></td>
+                    <td th:unless="${modoSolicitacao}" class="p-4 text-slate-900 font-medium" th:text="${pedido.valorTotal}"></td>
                     <td class="p-4 text-slate-600"
                         th:text="${#temporals.format(pedido.dataCriacao, 'dd/MM/yyyy HH:mm')}"></td>
                     <td class="p-4">

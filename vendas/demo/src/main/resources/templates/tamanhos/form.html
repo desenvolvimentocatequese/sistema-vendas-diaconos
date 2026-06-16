@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head><title th:fragment="title">Tamanho</title></head>
+<body>
+<th:block th:fragment="content">
+    <div class="max-w-xl mx-auto px-4 py-8">
+        <form th:action="@{/tamanhos}" method="post" th:object="${tamanho}" class="bg-white rounded-xl border p-6 space-y-4">
+            <input type="hidden" th:field="*{id}">
+            <div><label class="block text-sm font-medium mb-1">Nome</label>
+                <input type="text" th:field="*{nome}" class="w-full rounded-lg border px-3 py-2 text-sm">
+                <p class="text-red-600 text-sm" th:errors="*{nome}"></p></div>
+            <div><label class="block text-sm font-medium mb-1">Ordem</label>
+                <input type="number" th:field="*{ordem}" class="w-full rounded-lg border px-3 py-2 text-sm"></div>
+            <label class="flex gap-2 items-center"><input type="checkbox" th:field="*{ativo}"> Ativo</label>
+            <button type="submit" class="rounded-lg bg-slate-900 text-white px-5 py-2 text-sm">Salvar</button>
+        </form>
+    </div>
+</th:block>
+</body>
+</html>

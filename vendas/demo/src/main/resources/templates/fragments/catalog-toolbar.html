@@ -6,13 +6,13 @@
     <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
         <nav class="flex flex-wrap gap-2 text-sm" aria-label="Categorias do catálogo">
             <a th:href="@{/catalogoProdutos}" class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100">Todos</a>
-            <a th:each="tipoNav : ${tipos}"
-               th:href="@{/catalogoProdutos(tipo=${tipoNav})}"
-               th:text="${tipoNav}"
+            <a th:each="cat : ${categorias}"
+               th:href="@{/catalogoProdutos(categoriaId=${cat.id})}"
+               th:text="${cat.nome}"
                class="px-3 py-1.5 rounded-full border border-slate-300 hover:bg-slate-100"></a>
         </nav>
         <form th:action="@{/catalogoProdutos}" method="get" class="hidden lg:block w-full lg:max-w-sm">
-            <input type="text" name="busca" th:value="${busca}" placeholder="Buscar produto"
+            <input type="text" name="busca" th:value="${busca}" placeholder="Buscar por código ou nome"
                    class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400">
         </form>
     </div>

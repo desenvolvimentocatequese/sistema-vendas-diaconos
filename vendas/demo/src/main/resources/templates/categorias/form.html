@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head><title th:fragment="title">Categoria</title></head>
+<body>
+<th:block th:fragment="content">
+    <div class="max-w-xl mx-auto px-4 py-8">
+        <h1 class="text-2xl font-bold mb-6" th:text="${categoria.id != null} ? 'Editar categoria' : 'Nova categoria'"></h1>
+        <form th:action="@{/categorias}" method="post" th:object="${categoria}" class="bg-white rounded-xl border p-6 space-y-4">
+            <input type="hidden" th:field="*{id}">
+            <div><label class="block text-sm font-medium mb-1">Nome</label>
+                <input type="text" th:field="*{nome}" class="w-full rounded-lg border px-3 py-2 text-sm">
+                <p class="text-red-600 text-sm" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></p></div>
+            <div><label class="block text-sm font-medium mb-1">Descrição</label>
+                <input type="text" th:field="*{descricao}" class="w-full rounded-lg border px-3 py-2 text-sm"></div>
+            <div><label class="block text-sm font-medium mb-1">Ordem</label>
+                <input type="number" th:field="*{ordem}" class="w-full rounded-lg border px-3 py-2 text-sm"></div>
+            <label class="flex items-center gap-2"><input type="checkbox" th:field="*{ativo}"> Ativo</label>
+            <button type="submit" class="rounded-lg bg-slate-900 text-white px-5 py-2 text-sm">Salvar</button>
+        </form>
+    </div>
+</th:block>
+</body>
+</html>

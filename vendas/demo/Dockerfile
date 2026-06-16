@@ -16,10 +16,11 @@ WORKDIR /app
 
 RUN groupadd --system app && useradd --system --gid app app
 COPY --from=build /app/target/demo-*.jar /app/app.jar
-RUN chown -R app:app /app
+RUN mkdir -p /app/data/prod && chown -R app:app /app
 
 USER app
 EXPOSE 9090
 
 ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0"
+ENV SPRING_PROFILES_ACTIVE=prod
 ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar /app/app.jar"]

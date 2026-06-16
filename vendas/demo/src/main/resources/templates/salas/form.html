@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head><title th:fragment="title">Sala de Costura</title></head>
+<body>
+<th:block th:fragment="content">
+    <div class="max-w-xl mx-auto px-4 py-8">
+        <form th:action="@{/salas}" method="post" th:object="${sala}" class="bg-white rounded-xl border p-6 space-y-4">
+            <input type="hidden" th:field="*{id}">
+            <div>
+                <label class="block text-sm font-medium mb-1">Nome</label>
+                <input type="text" th:field="*{nome}" class="w-full rounded-lg border px-3 py-2 text-sm">
+                <p class="text-red-600 text-sm" th:errors="*{nome}"></p>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Responsável</label>
+                <input type="text" th:field="*{responsavel}" class="w-full rounded-lg border px-3 py-2 text-sm">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Telefone</label>
+                <input type="text" th:field="*{telefone}" class="w-full rounded-lg border px-3 py-2 text-sm">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Endereço</label>
+                <input type="text" th:field="*{endereco}" class="w-full rounded-lg border px-3 py-2 text-sm">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Observações</label>
+                <textarea th:field="*{observacoes}" rows="3" class="w-full rounded-lg border px-3 py-2 text-sm"></textarea>
+            </div>
+            <label class="flex gap-2 items-center"><input type="checkbox" th:field="*{ativo}"> Ativa</label>
+            <div class="flex gap-2">
+                <button type="submit" class="rounded-lg bg-slate-900 text-white px-5 py-2 text-sm">Salvar</button>
+                <a th:href="@{/salas}" class="rounded-lg border px-5 py-2 text-sm">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</th:block>
+</body>
+</html>

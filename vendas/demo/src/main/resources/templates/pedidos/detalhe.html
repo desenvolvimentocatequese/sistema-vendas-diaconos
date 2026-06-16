@@ -2,13 +2,16 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
 <head>
-    <title th:fragment="title">Detalhe do Pedido</title>
+    <title th:fragment="title" th:text="'Detalhe da ' + ${labelPedido}">Detalhe</title>
 </head>
 <body>
 <th:block th:fragment="content">
     <div class="max-w-6xl mx-auto px-4 py-8 space-y-6">
         <div class="flex items-center justify-between">
-            <h1 class="text-2xl font-bold text-slate-900">Pedido <span th:text="'#' + ${pedido.id}">#1</span></h1>
+            <h1 class="text-2xl font-bold text-slate-900">
+                <span th:text="${labelPedido}">Pedido</span>
+                <span th:text="'#' + ${pedido.id}">#1</span>
+            </h1>
             <a th:href="@{/pedidos}"
                class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
                 Voltar
@@ -29,35 +32,191 @@
                 <p class="text-xs uppercase tracking-wide text-slate-500">Status</p>
                 <p class="text-sm font-semibold text-slate-900" th:text="${pedido.status}"></p>
             </div>
-            <div class="bg-white rounded-xl border border-slate-200 p-4">
+            <div th:unless="${modoSolicitacao}" class="bg-white rounded-xl border border-slate-200 p-4">
                 <p class="text-xs uppercase tracking-wide text-slate-500">Total</p>
                 <p class="text-lg font-semibold text-slate-900"
                    th:text="'R$ ' + ${#numbers.formatDecimal(pedido.valorTotal, 1, 2)}"></p>
             </div>
         </div>
 
+        <div th:unless="${modoSolicitacao}" th:if="${pedido.tipoEntrega != null}"
+             class="bg-white rounded-xl border border-slate-200 p-4 text-sm">
+            <p><strong>Entrega:</strong> <span th:text="${pedido.tipoEntrega}"></span></p>
+            <p th:if="${pedido.enderecoEntrega != null && !pedido.enderecoEntrega.isEmpty()}">
+                <strong>Endereço:</strong> <span th:text="${pedido.enderecoEntrega}"></span>
+            </p>
+        </div>
+
         <div class="bg-white rounded-xl border border-slate-200 overflow-x-auto">
             <table class="min-w-full text-sm">
                 <thead>
                 <tr class="border-b border-slate-200 bg-slate-50 text-left text-slate-600">
-                    <th class="p-4 font-semibold">Produto</th>
+                    <th class="p-4 font-semibold">Código</th>
+                    <th class="p-4 font-semibold">Item</th>
                     <th class="p-4 font-semibold">Quantidade</th>
                     <th class="p-4 font-semibold">Tamanho</th>
                     <th class="p-4 font-semibold">Cor</th>
-                    <th class="p-4 font-semibold">Preço unitário</th>
+                    <th th:unless="${modoSolicitacao}" class="p-4 font-semibold">Preço unitário</th>
                 </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200">
                 <tr th:each="item : ${pedido.itens}">
-                    <td class="p-4 text-slate-900 font-medium" th:text="${item.produto != null ? item.produto.nome : 'Produto removido'}"></td>
+                    <td class="p-4 font-mono text-indigo-700"
+                        th:text="${item.item != null ? item.item.codigo : '-'}"></td>
+                    <td class="p-4 text-slate-900 font-medium"
+                        th:text="${item.item != null ? item.item.nome : 'Item removido'}"></td>
                     <td class="p-4 text-slate-700" th:text="${item.quantidade}"></td>
-                    <td class="p-4 text-slate-700" th:text="${item.tamanho != null ? item.tamanho : '-'}"></td>
-                    <td class="p-4 text-slate-700" th:text="${item.cor != null ? item.cor : '-'}"></td>
-                    <td class="p-4 text-slate-900" th:text="'R$ ' + ${#numbers.formatDecimal(item.precoUnitario, 1, 2)}"></td>
+                    <td class="p-4 text-slate-700" th:text="${item.tamanho != null ? item.tamanho.nome : '-'}"></td>
+                    <td class="p-4 text-slate-700" th:text="${item.cor != null ? item.cor.nome : '-'}"></td>
+                    <td th:unless="${modoSolicitacao}" class="p-4 text-slate-900"
+                        th:text="${item.precoUnitario != null ? 'R$ ' + #numbers.formatDecimal(item.precoUnitario, 1, 2) : '-'}"></td>
                 </tr>
                 </tbody>
             </table>
         </div>
+
+        <!-- ================= TRÂMITE / LOGÍSTICA ================= -->
+        <div class="pt-4 border-t border-slate-200">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <h2 class="text-xl font-bold text-slate-900">Trâmite da peça</h2>
+                <div class="flex gap-4">
+                    <div class="bg-white rounded-xl border border-slate-200 px-4 py-2">
+                        <p class="text-xs uppercase tracking-wide text-slate-500">Local atual</p>
+                        <p class="text-sm font-semibold text-slate-900"
+                           th:text="${pedido.localAtual != null ? pedido.localAtual.descricao : 'Não iniciado'}"></p>
+                    </div>
+                    <div class="bg-emerald-50 rounded-xl border border-emerald-200 px-4 py-2">
+                        <p class="text-xs uppercase tracking-wide text-emerald-700">Custo logístico total</p>
+                        <p class="text-lg font-semibold text-emerald-800"
+                           th:text="'R$ ' + ${#numbers.formatDecimal(custoLogisticoTotal, 1, 2)}"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Linha do tempo das movimentações -->
+        <div class="bg-white rounded-xl border border-slate-200 overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead>
+                <tr class="border-b border-slate-200 bg-slate-50 text-left text-slate-600">
+                    <th class="p-4 font-semibold">#</th>
+                    <th class="p-4 font-semibold">Origem</th>
+                    <th class="p-4 font-semibold">Destino</th>
+                    <th class="p-4 font-semibold">Transporte</th>
+                    <th class="p-4 font-semibold">Custo</th>
+                    <th class="p-4 font-semibold">Saída</th>
+                    <th class="p-4 font-semibold">Chegada</th>
+                    <th class="p-4 font-semibold">Observações</th>
+                    <th class="p-4 font-semibold">Ações</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200">
+                <tr th:each="m, stat : ${movimentacoes}">
+                    <td class="p-4 text-slate-500" th:text="${stat.count}"></td>
+                    <td class="p-4 text-slate-900" th:text="${m.origemDescricao}"></td>
+                    <td class="p-4 text-slate-900" th:text="${m.destinoDescricao}"></td>
+                    <td class="p-4 text-slate-700" th:text="${m.modoTransporte != null ? m.modoTransporte.descricao : '-'}"></td>
+                    <td class="p-4 text-slate-900" th:text="'R$ ' + ${#numbers.formatDecimal(m.custo, 1, 2)}"></td>
+                    <td class="p-4 text-slate-700"
+                        th:text="${m.dataSaida != null ? #temporals.format(m.dataSaida, 'dd/MM/yyyy') : '-'}"></td>
+                    <td class="p-4 text-slate-700"
+                        th:text="${m.dataChegada != null ? #temporals.format(m.dataChegada, 'dd/MM/yyyy') : '-'}"></td>
+                    <td class="p-4 text-slate-600" th:text="${m.observacoes != null ? m.observacoes : '-'}"></td>
+                    <td class="p-4">
+                        <a th:href="@{/pedidos/{pid}/movimentacoes/deletar/{mid}(pid=${pedido.id},mid=${m.id})}"
+                           class="text-red-600 text-xs" onclick="return confirm('Excluir movimentação?')">Excluir</a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(movimentacoes)}">
+                    <td class="p-4 text-slate-500" colspan="9">Nenhuma movimentação registrada ainda.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Formulário de nova movimentação -->
+        <div class="bg-white rounded-xl border border-slate-200 p-6">
+            <h3 class="text-lg font-semibold text-slate-900 mb-4">Registrar movimentação</h3>
+            <form th:action="@{/pedidos/{id}/movimentacoes(id=${pedido.id})}" method="post"
+                  class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Origem</label>
+                    <select name="origem" id="origem" required
+                            class="w-full rounded-lg border px-3 py-2 text-sm">
+                        <option th:each="local : ${locaisTramite}" th:value="${local}"
+                                th:text="${local.descricao}"></option>
+                    </select>
+                </div>
+                <div id="salaOrigemWrap" class="hidden">
+                    <label class="block text-sm font-medium mb-1">Sala de costura (origem)</label>
+                    <select name="salaOrigemId" class="w-full rounded-lg border px-3 py-2 text-sm">
+                        <option value="">— selecione —</option>
+                        <option th:each="sala : ${salasCostura}" th:value="${sala.id}" th:text="${sala.nome}"></option>
+                    </select>
+                </div>
+                <div class="lg:col-start-1">
+                    <label class="block text-sm font-medium mb-1">Destino</label>
+                    <select name="destino" id="destino" required
+                            class="w-full rounded-lg border px-3 py-2 text-sm">
+                        <option th:each="local : ${locaisTramite}" th:value="${local}"
+                                th:text="${local.descricao}"></option>
+                    </select>
+                </div>
+                <div id="salaDestinoWrap" class="hidden">
+                    <label class="block text-sm font-medium mb-1">Sala de costura (destino)</label>
+                    <select name="salaDestinoId" class="w-full rounded-lg border px-3 py-2 text-sm">
+                        <option value="">— selecione —</option>
+                        <option th:each="sala : ${salasCostura}" th:value="${sala.id}" th:text="${sala.nome}"></option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Modo de transporte</label>
+                    <select name="modoTransporte" required class="w-full rounded-lg border px-3 py-2 text-sm">
+                        <option th:each="modo : ${modosTransporte}" th:value="${modo}" th:text="${modo.descricao}"></option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Custo (R$)</label>
+                    <input type="number" step="0.01" min="0" name="custo" value="0.00"
+                           class="w-full rounded-lg border px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Data de saída</label>
+                    <input type="date" name="dataSaida" class="w-full rounded-lg border px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Data de chegada</label>
+                    <input type="date" name="dataChegada" class="w-full rounded-lg border px-3 py-2 text-sm">
+                </div>
+                <div class="md:col-span-2 lg:col-span-3">
+                    <label class="block text-sm font-medium mb-1">Observações</label>
+                    <input type="text" name="observacoes" maxlength="500"
+                           class="w-full rounded-lg border px-3 py-2 text-sm"
+                           placeholder="Ex.: ajuste fino na barra, etiqueta de rastreio...">
+                </div>
+                <div class="md:col-span-2 lg:col-span-3">
+                    <button type="submit" class="rounded-lg bg-slate-900 text-white px-5 py-2 text-sm">
+                        Registrar movimentação
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <script th:inline="javascript">
+            (function () {
+                const SALA = 'SALA_COSTURA';
+                function toggle(selectId, wrapId) {
+                    const sel = document.getElementById(selectId);
+                    const wrap = document.getElementById(wrapId);
+                    if (!sel || !wrap) return;
+                    const update = () => wrap.classList.toggle('hidden', sel.value !== SALA);
+                    sel.addEventListener('change', update);
+                    update();
+                }
+                toggle('origem', 'salaOrigemWrap');
+                toggle('destino', 'salaDestinoWrap');
+            })();
+        </script>
     </div>
 </th:block>
 </body>

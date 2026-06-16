@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
 <head>
-    <title th:fragment="title">Painel · Sistema Vendas</title>
+    <title th:fragment="title">Painel</title>
 </head>
 <body>
 <th:block th:fragment="content">
@@ -20,16 +20,22 @@
             </a>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <a th:href="@{/produtos}"
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <a th:href="@{/itens}"
                class="bg-white rounded-xl border border-slate-200 p-5 hover:border-slate-400 hover:shadow-sm transition">
-                <h2 class="font-semibold text-slate-900">Produtos</h2>
-                <p class="text-sm text-slate-500 mt-1">Gestão de cadastro e estoque futuro.</p>
+                <h2 class="font-semibold text-slate-900">Itens padronizados</h2>
+                <p class="text-sm text-slate-500 mt-1">Códigos homologados para corte e costura.</p>
+            </a>
+            <a th:href="@{/estoque}"
+               class="bg-white rounded-xl border border-slate-200 p-5 hover:border-slate-400 hover:shadow-sm transition">
+                <h2 class="font-semibold text-slate-900">Estoque</h2>
+                <p class="text-sm text-slate-500 mt-1">Quantidades por item, cor e tamanho.</p>
             </a>
             <a th:href="@{/pedidos}"
                class="bg-white rounded-xl border border-slate-200 p-5 hover:border-slate-400 hover:shadow-sm transition">
-                <h2 class="font-semibold text-slate-900">Pedidos</h2>
-                <p class="text-sm text-slate-500 mt-1">Acompanhe pedidos e entregas.</p>
+                <h2 class="font-semibold text-slate-900" th:text="${labelPedidos}">Pedidos</h2>
+                <p class="text-sm text-slate-500 mt-1"
+                   th:text="${modoSolicitacao} ? 'Acompanhe solicitações de peças.' : 'Acompanhe pedidos e entregas.'"></p>
             </a>
             <a th:href="@{/chamados}"
                class="bg-white rounded-xl border border-slate-200 p-5 hover:border-slate-400 hover:shadow-sm transition">
@@ -38,12 +44,25 @@
             </a>
         </div>
 
+        <div th:if="${usuarioEhAdmin}" class="bg-indigo-50 rounded-xl border border-indigo-200 p-6">
+            <h2 class="font-semibold text-indigo-900 mb-2">Administração</h2>
+            <div class="flex flex-wrap gap-2 text-sm">
+                <a th:href="@{/configuracao}" class="text-indigo-700 hover:underline">Configuração do sistema</a>
+                <span class="text-indigo-300">|</span>
+                <a th:href="@{/categorias}" class="text-indigo-700 hover:underline">Categorias</a>
+                <span class="text-indigo-300">|</span>
+                <a th:href="@{/cores}" class="text-indigo-700 hover:underline">Cores</a>
+                <span class="text-indigo-300">|</span>
+                <a th:href="@{/tamanhos}" class="text-indigo-700 hover:underline">Tamanhos</a>
+            </div>
+        </div>
+
         <div class="bg-white rounded-xl border border-slate-200 p-6">
             <h2 class="font-semibold text-slate-900 mb-2">Atalhos</h2>
             <div class="flex flex-wrap gap-2 text-sm">
-                <a th:href="@{/carrinho}" class="text-emerald-700 hover:underline">Carrinho</a>
+                <a th:href="@{/carrinho}" class="text-emerald-700 hover:underline" th:text="${labelCarrinho}">Carrinho</a>
                 <span class="text-slate-300">|</span>
-                <a th:href="@{/pedidos}" class="text-slate-700 hover:underline">Listar pedidos</a>
+                <a th:href="@{/pedidos}" class="text-slate-700 hover:underline" th:text="'Listar ' + ${labelPedidos.toLowerCase()}"></a>
             </div>
         </div>
     </div>

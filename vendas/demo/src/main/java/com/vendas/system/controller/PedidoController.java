@@ -1,8 +1,12 @@
 package com.vendas.system.controller;
 
+import com.vendas.system.model.LocalTramite;
+import com.vendas.system.model.ModoTransporte;
 import com.vendas.system.model.PedidoModel;
 import com.vendas.system.model.StatusPedido;
+import com.vendas.system.service.MovimentacaoPedidoService;
 import com.vendas.system.service.PedidoService;
+import com.vendas.system.service.SalaCosturaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,9 +19,15 @@ import java.util.Map;
 public class PedidoController {
 
     private final PedidoService pedidoService;
+    private final MovimentacaoPedidoService movimentacaoService;
+    private final SalaCosturaService salaCosturaService;
 
-    public PedidoController(PedidoService pedidoService) {
+    public PedidoController(PedidoService pedidoService,
+                            MovimentacaoPedidoService movimentacaoService,
+                            SalaCosturaService salaCosturaService) {
         this.pedidoService = pedidoService;
+        this.movimentacaoService = movimentacaoService;
+        this.salaCosturaService = salaCosturaService;
     }
 
     @GetMapping
@@ -54,7 +64,14 @@ public class PedidoController {
 
     @GetMapping("/{id}")
     public String detalhePedido(@PathVariable Long id, Model model) {
-        pedidoService.findById(id).ifPresent(pedido -> model.addAttribute("pedido", pedido));
+        pedidoService.findById(id).ifPresent(pedido -> {
+            model.addAttribute("pedido", pedido);
+            model.addAttribute("movimentacoes", movimentacaoService.listarPorPedido(id));
+            model.addAttribute("custoLogisticoTotal", movimentacaoService.custoTotalPorPedido(id));
+            model.addAttribute("salasCostura", salaCosturaService.findAtivas());
+            model.addAttribute("locaisTramite", LocalTramite.values());
+            model.addAttribute("modosTransporte", ModoTransporte.values());
+        });
         return "pedidos/detalhe";
     }
 

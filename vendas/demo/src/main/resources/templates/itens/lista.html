@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head><title th:fragment="title">Itens padronizados</title></head>
+<body>
+<th:block th:fragment="content">
+    <div class="max-w-7xl mx-auto px-4 py-8 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">Itens padronizados</h1>
+                <p class="text-sm text-slate-500">Códigos homologados para corte e costura (TAB.PIA.SN.01)</p>
+            </div>
+            <a th:href="@{/itens/novo}" class="rounded-lg bg-emerald-600 text-white px-4 py-2 text-sm hover:bg-emerald-500">Novo item</a>
+        </div>
+
+        <div class="bg-white rounded-xl border p-4">
+            <form method="get" th:action="@{/itens}" class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+                <div><label class="block text-sm mb-1">Busca</label>
+                    <input type="text" name="busca" th:value="${filtroBusca}" class="w-full rounded-lg border px-3 py-2 text-sm"></div>
+                <div><label class="block text-sm mb-1">Categoria</label>
+                    <select name="categoriaId" class="w-full rounded-lg border px-3 py-2 text-sm">
+                        <option value="">Todas</option>
+                        <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nome}"
+                                th:selected="${filtroCategoriaId == cat.id}"></option>
+                    </select></div>
+                <div><label class="block text-sm mb-1">Status</label>
+                    <select name="ativo" class="w-full rounded-lg border px-3 py-2 text-sm">
+                        <option value="">Todos</option>
+                        <option value="true" th:selected="${filtroAtivo != null && filtroAtivo}">Ativo</option>
+                        <option value="false" th:selected="${filtroAtivo != null && !filtroAtivo}">Inativo</option>
+                    </select></div>
+                <button type="submit" class="rounded-lg bg-slate-900 text-white py-2 text-sm">Filtrar</button>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-xl border overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead><tr class="border-b bg-slate-50 text-slate-600">
+                    <th class="p-4 text-left">Código</th><th class="p-4 text-left">Nome</th><th class="p-4 text-left">Categoria</th>
+                    <th class="p-4 text-left">Ativo</th><th class="p-4 text-left">Ações</th>
+                </tr></thead>
+                <tbody class="divide-y">
+                <tr th:each="item : ${itens}">
+                    <td class="p-4 font-mono font-bold text-indigo-700" th:text="${item.codigo}"></td>
+                    <td class="p-4 font-medium" th:text="${item.nome}"></td>
+                    <td class="p-4 text-slate-600" th:text="${item.categoria?.nome}"></td>
+                    <td class="p-4" th:text="${item.ativo} ? 'Sim' : 'Não'"></td>
+                    <td class="p-4 flex gap-2">
+                        <a th:href="@{/itens/editar/{id}(id=${item.id})}" class="text-amber-700 text-xs">Editar</a>
+                        <a th:href="@{/itens/deletar/{id}(id=${item.id})}" class="text-red-600 text-xs"
+                           onclick="return confirm('Excluir item?')">Excluir</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>

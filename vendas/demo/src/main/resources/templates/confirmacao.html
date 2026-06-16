@@ -2,14 +2,14 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
 <head>
-    <title th:fragment="title">Pedido registrado</title>
+    <title th:fragment="title" th:text="${labelPedido} + ' registrado'">Confirmacao</title>
 </head>
 <body>
 <th:block th:fragment="content">
     <div class="max-w-3xl mx-auto px-4 py-8 space-y-6">
         <div th:if="${pedidoId}" class="rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-900">
-            <p class="font-semibold">Pedido registrado!</p>
-            <p class="text-sm mt-1">Identificação do pedido: <span class="font-mono font-medium" th:text="'#' + ${pedidoId}">#</span></p>
+            <p class="font-semibold" th:text="${labelPedido} + ' registrada!'">Registrado!</p>
+            <p class="text-sm mt-1">Identificação: <span class="font-mono font-medium" th:text="'#' + ${pedidoId}">#</span></p>
         </div>
 
         <h1 class="text-2xl font-bold text-slate-900">Resumo</h1>
@@ -18,29 +18,30 @@
             <table class="min-w-full text-sm">
                 <thead>
                 <tr class="border-b border-slate-200 bg-slate-50 text-left text-slate-600">
-                    <th class="p-4 font-semibold">Produto</th>
+                    <th class="p-4 font-semibold">Item</th>
                     <th class="p-4 font-semibold">Tam.</th>
                     <th class="p-4 font-semibold">Cor</th>
                     <th class="p-4 font-semibold">Qtd</th>
-                    <th class="p-4 font-semibold">Unit.</th>
-                    <th class="p-4 font-semibold">Subtotal</th>
+                    <th th:unless="${modoSolicitacao}" class="p-4 font-semibold">Unit.</th>
+                    <th th:unless="${modoSolicitacao}" class="p-4 font-semibold">Subtotal</th>
                 </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200">
                 <tr th:each="item : ${carrinho}" class="hover:bg-slate-50/80">
-                    <td class="p-4 font-medium text-slate-900" th:text="${item.nomeProduto}"></td>
-                    <td class="p-4 text-slate-600" th:text="${item.tamanho}"></td>
-                    <td class="p-4 text-slate-600" th:text="${item.cor != null ? item.cor : '-'}"></td>
+                    <td class="p-4 font-medium text-slate-900" th:text="${item.nomeItem}"></td>
+                    <td class="p-4 text-slate-600" th:text="${item.tamanhoNome}"></td>
+                    <td class="p-4 text-slate-600" th:text="${item.corNome != null ? item.corNome : '-'}"></td>
                     <td class="p-4 text-slate-600" th:text="${item.quantidade}"></td>
-                    <td class="p-4 text-slate-600" th:text="'R$ ' + ${#numbers.formatDecimal(item.preco, 1, 2)}"></td>
-                    <td class="p-4 text-slate-900 font-medium"
+                    <td th:unless="${modoSolicitacao}" class="p-4 text-slate-600"
+                        th:text="'R$ ' + ${#numbers.formatDecimal(item.preco, 1, 2)}"></td>
+                    <td th:unless="${modoSolicitacao}" class="p-4 text-slate-900 font-medium"
                         th:text="'R$ ' + ${#numbers.formatDecimal(item.subtotal, 1, 2)}"></td>
                 </tr>
                 </tbody>
             </table>
         </div>
 
-        <div class="bg-white rounded-xl border border-slate-200 p-5 space-y-2 text-sm text-slate-700">
+        <div th:unless="${modoSolicitacao}" class="bg-white rounded-xl border border-slate-200 p-5 space-y-2 text-sm text-slate-700">
             <div class="flex justify-between"><span class="text-slate-500">Produtos</span><span class="font-medium"
                                                                                                   th:text="'R$ ' + ${#numbers.formatDecimal(totalProdutos, 1, 2)}">0</span>
             </div>
@@ -52,25 +53,22 @@
                     th:text="'R$ ' + ${#numbers.formatDecimal(total, 1, 2)}">0</span></div>
         </div>
 
-        <div th:if="${checkout.tipoEntrega == 'ENTREGA'}" class="rounded-xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-700">
+        <div th:if="${checkout != null && checkout.tipoEntrega == 'ENTREGA'}"
+             class="rounded-xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-700">
             <h2 class="font-semibold text-slate-900 mb-2">Entrega</h2>
             <p>CEP: <span th:text="${checkout.cep}"></span></p>
             <p>Rua: <span th:text="${checkout.rua}"></span>, <span th:text="${checkout.numero}"></span></p>
             <p>Cidade: <span th:text="${checkout.cidade}"></span></p>
         </div>
-        <div th:if="${checkout.tipoEntrega == 'RETIRADA'}"
+        <div th:if="${checkout != null && checkout.tipoEntrega == 'RETIRADA'}"
              class="rounded-xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-700">
             Retirada no local.
         </div>
 
         <div class="flex flex-wrap gap-3">
-            <button type="button" onclick="alert('Pedido finalizado — fluxo de pagamento em desenvolvimento.')"
-                    class="rounded-lg bg-slate-900 text-white px-5 py-2.5 text-sm font-medium hover:bg-slate-700">
-                Ir ao pagamento
-            </button>
             <a th:href="@{/catalogoProdutos}"
-               class="rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">
-                Continuar comprando
+               class="rounded-lg bg-slate-900 text-white px-5 py-2.5 text-sm font-medium hover:bg-slate-700">
+                Voltar ao catálogo
             </a>
         </div>
     </div>

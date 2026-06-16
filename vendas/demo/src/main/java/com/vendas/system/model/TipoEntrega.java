@@ -2,7 +2,8 @@ package com.vendas.system.model;
 
 public enum TipoEntrega {
     ENTREGA("entrega"),
-    RETIRADA("retirada");
+    RETIRADA("retirada"),
+    SOLICITACAO("solicitacao");
 
     private final String tipo;
 

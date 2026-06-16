@@ -2,8 +2,6 @@ package com.vendas.system.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
@@ -25,25 +23,23 @@ public class ItemPedidoModel {
     private PedidoModel pedido;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "produto_id", nullable = false)
-    private ProdutoModel produto;
+    @JoinColumn(name = "item_padronizado_id", nullable = false)
+    private ItemPadronizadoModel item;
 
     @Column(nullable = false)
     private Integer quantidade;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(precision = 10, scale = 2)
     private BigDecimal precoUnitario;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(precision = 10, scale = 2)
     private BigDecimal valorTotal;
 
-    @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(length = 32)
-    private Tamanho tamanho;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tamanho_id")
+    private TamanhoModel tamanho;
 
-    @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(length = 32)
-    private Cor cor;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cor_id")
+    private CorModel cor;
 }

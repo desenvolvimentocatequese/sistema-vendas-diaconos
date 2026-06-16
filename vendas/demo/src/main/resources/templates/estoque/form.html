@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head><title th:fragment="title">Estoque</title></head>
+<body>
+<th:block th:fragment="content">
+    <div class="max-w-xl mx-auto px-4 py-8">
+        <h1 class="text-2xl font-bold mb-6" th:text="${estoque.id != null} ? 'Editar estoque' : 'Novo registro de estoque'"></h1>
+        <form th:action="@{/estoque}" method="post" class="bg-white rounded-xl border p-6 space-y-4">
+            <input type="hidden" name="id" th:value="${estoque.id}">
+            <div><label class="block text-sm font-medium mb-1">Item</label>
+                <select name="itemId" required class="w-full rounded-lg border px-3 py-2 text-sm">
+                    <option value="">Selecione...</option>
+                    <option th:each="i : ${itens}" th:value="${i.id}" th:text="${i.codigo + ' - ' + i.nome}"
+                            th:selected="${estoque.item != null && estoque.item.id == i.id}"></option>
+                </select></div>
+            <div><label class="block text-sm font-medium mb-1">Cor (opcional)</label>
+                <select name="corId" class="w-full rounded-lg border px-3 py-2 text-sm">
+                    <option value="">Sem cor</option>
+                    <option th:each="c : ${coresLista}" th:value="${c.id}" th:text="${c.nome}"
+                            th:selected="${estoque.cor != null && estoque.cor.id == c.id}"></option>
+                </select></div>
+            <div><label class="block text-sm font-medium mb-1">Tamanho</label>
+                <select name="tamanhoId" required class="w-full rounded-lg border px-3 py-2 text-sm">
+                    <option value="">Selecione...</option>
+                    <option th:each="t : ${tamanhosLista}" th:value="${t.id}" th:text="${t.nome}"
+                            th:selected="${estoque.tamanho != null && estoque.tamanho.id == t.id}"></option>
+                </select></div>
+            <div><label class="block text-sm font-medium mb-1">Quantidade</label>
+                <input type="number" name="quantidade" min="0" th:value="${estoque.quantidade}"
+                       class="w-full rounded-lg border px-3 py-2 text-sm" required></div>
+            <button type="submit" class="rounded-lg bg-slate-900 text-white px-5 py-2 text-sm">Salvar</button>
+        </form>
+    </div>
+</th:block>
+</body>
+</html>

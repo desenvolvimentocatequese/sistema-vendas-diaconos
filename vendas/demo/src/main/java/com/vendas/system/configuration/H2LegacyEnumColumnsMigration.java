@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 
+import java.util.List;
+
 /**
  * H2 creates native ENUM domains for {@code @Enumerated(STRING)}; changing enum literals breaks reads.
  * After Hibernate DDL, converts affected columns to VARCHAR and maps legacy status values.
@@ -41,15 +43,41 @@ public class H2LegacyEnumColumnsMigration implements ApplicationRunner {
             return;
         }
 
+        // Remove CHECK constraints obsoletas geradas por enums antigos (ex.: tipo_entrega só aceitava ENTREGA/RETIRADA).
+        dropCheckConstraints(jdbc, "PEDIDOS");
+        dropCheckConstraints(jdbc, "ITENS_PEDIDO");
+
         tryMigrate(jdbc, "ALTER TABLE pedidos ALTER COLUMN status VARCHAR(32) NOT NULL");
         tryMigrate(jdbc, "UPDATE pedidos SET status = 'EM_PRODUCAO' WHERE status IN ('EM_ANDAMENTO', 'EM_TRANSITO')");
         tryMigrate(jdbc, "UPDATE pedidos SET status = 'FINALIZADO' WHERE status IN ('CONCLUIDO', 'ENTREGUE_RETIRADO')");
 
-        tryMigrate(jdbc, "ALTER TABLE pedidos ALTER COLUMN tipo_entrega VARCHAR(32) NOT NULL");
+        tryMigrate(jdbc, "ALTER TABLE pedidos ALTER COLUMN tipo_entrega VARCHAR(32)");
+
+        // valor_total agora pode ser nulo no modo solicitação
+        tryMigrate(jdbc, "ALTER TABLE pedidos ALTER COLUMN valor_total DROP NOT NULL");
 
         if (tableExists(jdbc, "itens_pedido")) {
+            // Colunas legadas (produto_id, tamanho, cor) substituídas por item_padronizado_id, tamanho_id, cor_id.
+            tryMigrate(jdbc, "ALTER TABLE itens_pedido ALTER COLUMN produto_id DROP NOT NULL");
+            tryMigrate(jdbc, "ALTER TABLE itens_pedido ALTER COLUMN preco_unitario DROP NOT NULL");
+            tryMigrate(jdbc, "ALTER TABLE itens_pedido ALTER COLUMN valor_total DROP NOT NULL");
             tryMigrate(jdbc, "ALTER TABLE itens_pedido ALTER COLUMN tamanho VARCHAR(32)");
             tryMigrate(jdbc, "ALTER TABLE itens_pedido ALTER COLUMN cor VARCHAR(32)");
+        }
+    }
+
+    private static void dropCheckConstraints(JdbcTemplate jdbc, String tableName) {
+        try {
+            List<String> nomes = jdbc.queryForList(
+                    "SELECT CONSTRAINT_NAME FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS "
+                            + "WHERE CONSTRAINT_TYPE = 'CHECK' AND UPPER(TABLE_NAME) = UPPER(?)",
+                    String.class,
+                    tableName);
+            for (String nome : nomes) {
+                tryMigrate(jdbc, "ALTER TABLE " + tableName + " DROP CONSTRAINT IF EXISTS \"" + nome + "\"");
+            }
+        } catch (Exception ex) {
+            log.debug("Não foi possível listar/remover check constraints de [{}]: {}", tableName, ex.getMessage());
         }
     }
 

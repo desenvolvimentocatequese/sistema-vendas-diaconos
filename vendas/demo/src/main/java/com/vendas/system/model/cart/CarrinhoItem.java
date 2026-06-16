@@ -1,7 +1,5 @@
 package com.vendas.system.model.cart;
 
-import com.vendas.system.model.Cor;
-import com.vendas.system.model.Tamanho;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,12 +13,15 @@ import java.util.Objects;
 @AllArgsConstructor
 public class CarrinhoItem implements Serializable {
 
-    private Long produtoId;
-    private String nomeProduto;
+    private Long itemId;
+    private String codigoItem;
+    private String nomeItem;
     private String imagemPath;
     private BigDecimal preco;
-    private Cor cor;
-    private Tamanho tamanho;
+    private Long corId;
+    private String corNome;
+    private Long tamanhoId;
+    private String tamanhoNome;
     private int quantidade;
 
     public BigDecimal getSubtotal() {
@@ -32,8 +33,8 @@ public class CarrinhoItem implements Serializable {
 
     public boolean mesmaLinha(CarrinhoItem outro) {
         return outro != null
-                && Objects.equals(produtoId, outro.produtoId)
-                && tamanho == outro.tamanho
-                && cor == outro.cor;
+                && Objects.equals(itemId, outro.itemId)
+                && Objects.equals(tamanhoId, outro.tamanhoId)
+                && Objects.equals(corId, outro.corId);
     }
 }
