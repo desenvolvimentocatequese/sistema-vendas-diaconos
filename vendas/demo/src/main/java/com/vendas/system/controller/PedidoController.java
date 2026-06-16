@@ -38,9 +38,13 @@ public class PedidoController {
 
     @GetMapping("/kanban")
     public String kanbanPedidos(Model model) {
-        model.addAttribute("pedidosNovo", pedidoService.findByStatusOrderByDataCriacaoDesc(StatusPedido.NOVO));
-        model.addAttribute("pedidosEmProducao", pedidoService.findByStatusOrderByDataCriacaoDesc(StatusPedido.EM_PRODUCAO));
-        model.addAttribute("pedidosFinalizado", pedidoService.findByStatusOrderByDataCriacaoDesc(StatusPedido.FINALIZADO));
+        model.addAttribute("pedidosSemTramite", pedidoService.findSemTramite());
+        model.addAttribute("pedidosBras", pedidoService.findByLocalAtual(LocalTramite.BRAS));
+        model.addAttribute("pedidosCentroDistribuicao", pedidoService.findByLocalAtual(LocalTramite.CENTRO_DISTRIBUICAO));
+        model.addAttribute("pedidosSalaCostura", pedidoService.findByLocalAtual(LocalTramite.SALA_COSTURA));
+        model.addAttribute("pedidosSolicitante", pedidoService.findByLocalAtual(LocalTramite.SOLICITANTE));
+        model.addAttribute("salasCostura", salaCosturaService.findAtivas());
+        model.addAttribute("modosTransporte", ModoTransporte.values());
         return "pedidos/kanban";
     }
 

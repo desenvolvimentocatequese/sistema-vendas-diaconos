@@ -1,5 +1,6 @@
 package com.vendas.system.repository;
 
+import com.vendas.system.model.LocalTramite;
 import com.vendas.system.model.PedidoModel;
 import com.vendas.system.model.StatusPedido;
 import com.vendas.system.model.TipoEntrega;
@@ -35,4 +36,8 @@ public interface PedidoRepository extends JpaRepository<PedidoModel, Long> {
     Long countByStatus(@Param("status") StatusPedido status);
 
     List<PedidoModel> findAllByOrderByDataCriacaoDesc();
+
+    List<PedidoModel> findByLocalAtualOrderByDataCriacaoDesc(LocalTramite localAtual);
+
+    List<PedidoModel> findByLocalAtualIsNullOrderByDataCriacaoDesc();
 }

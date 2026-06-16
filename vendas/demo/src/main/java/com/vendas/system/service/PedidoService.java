@@ -55,6 +55,14 @@ public class PedidoService {
         return pedidoRepository.findByStatusOrderByDataCriacaoDesc(status);
     }
 
+    public List<PedidoModel> findByLocalAtual(LocalTramite localAtual) {
+        return pedidoRepository.findByLocalAtualOrderByDataCriacaoDesc(localAtual);
+    }
+
+    public List<PedidoModel> findSemTramite() {
+        return pedidoRepository.findByLocalAtualIsNullOrderByDataCriacaoDesc();
+    }
+
     public Optional<PedidoModel> findById(Long id) {
         return pedidoRepository.findById(id);
     }

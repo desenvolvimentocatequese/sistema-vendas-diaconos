@@ -12,6 +12,8 @@
 
         <div th:if="${sucesso}" class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"
              th:text="${sucesso}"></div>
+        <div th:if="${erro}" class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+             th:text="${erro}"></div>
 
         <div class="bg-white rounded-xl border border-slate-200 p-6">
             <form th:action="@{/configuracao}" method="post" class="space-y-6">
@@ -32,6 +34,29 @@
                 <button type="submit"
                         class="rounded-lg bg-slate-900 text-white px-5 py-2.5 text-sm font-medium hover:bg-slate-700">
                     Salvar configuração
+                </button>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-xl border border-red-200 p-6 mt-8">
+            <h2 class="text-lg font-semibold text-red-800">Zona de risco</h2>
+            <p class="text-sm text-slate-600 mt-1">
+                Apaga <strong>todos os dados</strong> (pedidos, movimentações, chamados, estoque, itens,
+                categorias, cores, tamanhos, salas e demais usuários) e preserva apenas o usuário
+                <strong>admin@admin.com</strong>. O catálogo base é recriado automaticamente. Esta ação não pode ser desfeita.
+            </p>
+            <form th:action="@{/configuracao/limpar-dados}" method="post" class="mt-4 space-y-3"
+                  onsubmit="return confirm('Tem certeza? Isto apaga todos os dados e mantém apenas o admin.');">
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-slate-700">
+                        Digite <span class="font-mono font-bold">LIMPAR</span> para confirmar
+                    </label>
+                    <input type="text" name="confirmacao" autocomplete="off"
+                           class="w-full sm:w-64 rounded-lg border px-3 py-2 text-sm" placeholder="LIMPAR">
+                </div>
+                <button type="submit"
+                        class="rounded-lg bg-red-600 text-white px-5 py-2.5 text-sm font-medium hover:bg-red-700">
+                    Limpar todos os dados
                 </button>
             </form>
         </div>

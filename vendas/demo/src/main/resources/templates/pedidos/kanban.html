@@ -2,27 +2,32 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
 <head>
-    <title th:fragment="title">Kanban de Pedidos</title>
+    <title th:fragment="title">Kanban de Trâmite</title>
 </head>
 <body>
 <th:block th:fragment="content">
     <div class="max-w-7xl mx-auto px-4 py-8 space-y-6">
         <div class="flex items-center justify-between">
-            <h1 class="text-2xl font-bold text-slate-900">Kanban de Pedidos</h1>
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">Kanban de Trâmite</h1>
+                <p class="text-sm text-slate-500">Arraste um pedido entre os locais para registrar o transporte.</p>
+            </div>
             <a th:href="@{/pedidos}"
                class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
                 Voltar para lista
             </a>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-4">
             <section class="bg-white rounded-xl border border-slate-200 p-4">
-                <h2 class="font-semibold text-slate-900 mb-3">NOVO</h2>
-                <div id="coluna-NOVO" class="kanban-coluna min-h-24 space-y-3" data-status="NOVO">
-                    <article th:each="pedido : ${pedidosNovo}"
-                             th:attr="data-id=${pedido.id}"
+                <h2 class="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                    <span class="inline-block w-2 h-2 rounded-full bg-slate-400"></span> Não iniciado
+                </h2>
+                <div class="kanban-coluna min-h-24 space-y-3" data-local="" data-local-label="Não iniciado">
+                    <article th:each="pedido : ${pedidosSemTramite}" th:attr="data-id=${pedido.id}"
                              class="kanban-card bg-slate-50 rounded-lg border border-slate-200 p-3 cursor-move">
                         <p class="font-semibold text-slate-900" th:text="'Pedido #' + ${pedido.id}"></p>
+                        <p class="text-xs text-slate-600 mt-0.5" th:text="${pedido.usuario != null ? pedido.usuario.nome : ''}"></p>
                         <p class="text-xs text-slate-500 mt-1" th:text="${#temporals.format(pedido.dataCriacao, 'dd/MM HH:mm')}"></p>
                         <p class="text-sm text-slate-700 mt-2" th:text="'R$ ' + ${#numbers.formatDecimal(pedido.valorTotal, 1, 2)}"></p>
                         <a th:href="@{/pedidos/{id}(id=${pedido.id})}" class="text-xs text-slate-700 hover:underline mt-2 inline-block">Detalhes</a>
@@ -31,12 +36,14 @@
             </section>
 
             <section class="bg-white rounded-xl border border-slate-200 p-4">
-                <h2 class="font-semibold text-slate-900 mb-3">EM_PRODUCAO</h2>
-                <div id="coluna-EM_PRODUCAO" class="kanban-coluna min-h-24 space-y-3" data-status="EM_PRODUCAO">
-                    <article th:each="pedido : ${pedidosEmProducao}"
-                             th:attr="data-id=${pedido.id}"
-                             class="kanban-card bg-amber-50 rounded-lg border border-amber-200 p-3 cursor-move">
+                <h2 class="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                    <span class="inline-block w-2 h-2 rounded-full bg-indigo-500"></span> Brás (Fábrica)
+                </h2>
+                <div class="kanban-coluna min-h-24 space-y-3" data-local="BRAS" data-local-label="Brás (Fábrica de Tecidos)">
+                    <article th:each="pedido : ${pedidosBras}" th:attr="data-id=${pedido.id}"
+                             class="kanban-card bg-slate-50 rounded-lg border border-slate-200 p-3 cursor-move">
                         <p class="font-semibold text-slate-900" th:text="'Pedido #' + ${pedido.id}"></p>
+                        <p class="text-xs text-slate-600 mt-0.5" th:text="${pedido.usuario != null ? pedido.usuario.nome : ''}"></p>
                         <p class="text-xs text-slate-500 mt-1" th:text="${#temporals.format(pedido.dataCriacao, 'dd/MM HH:mm')}"></p>
                         <p class="text-sm text-slate-700 mt-2" th:text="'R$ ' + ${#numbers.formatDecimal(pedido.valorTotal, 1, 2)}"></p>
                         <a th:href="@{/pedidos/{id}(id=${pedido.id})}" class="text-xs text-slate-700 hover:underline mt-2 inline-block">Detalhes</a>
@@ -45,12 +52,46 @@
             </section>
 
             <section class="bg-white rounded-xl border border-slate-200 p-4">
-                <h2 class="font-semibold text-slate-900 mb-3">FINALIZADO</h2>
-                <div id="coluna-FINALIZADO" class="kanban-coluna min-h-24 space-y-3" data-status="FINALIZADO">
-                    <article th:each="pedido : ${pedidosFinalizado}"
-                             th:attr="data-id=${pedido.id}"
-                             class="kanban-card bg-emerald-50 rounded-lg border border-emerald-200 p-3 cursor-move">
+                <h2 class="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                    <span class="inline-block w-2 h-2 rounded-full bg-sky-500"></span> Centro de Distribuição
+                </h2>
+                <div class="kanban-coluna min-h-24 space-y-3" data-local="CENTRO_DISTRIBUICAO" data-local-label="Centro de Distribuição">
+                    <article th:each="pedido : ${pedidosCentroDistribuicao}" th:attr="data-id=${pedido.id}"
+                             class="kanban-card bg-slate-50 rounded-lg border border-slate-200 p-3 cursor-move">
                         <p class="font-semibold text-slate-900" th:text="'Pedido #' + ${pedido.id}"></p>
+                        <p class="text-xs text-slate-600 mt-0.5" th:text="${pedido.usuario != null ? pedido.usuario.nome : ''}"></p>
+                        <p class="text-xs text-slate-500 mt-1" th:text="${#temporals.format(pedido.dataCriacao, 'dd/MM HH:mm')}"></p>
+                        <p class="text-sm text-slate-700 mt-2" th:text="'R$ ' + ${#numbers.formatDecimal(pedido.valorTotal, 1, 2)}"></p>
+                        <a th:href="@{/pedidos/{id}(id=${pedido.id})}" class="text-xs text-slate-700 hover:underline mt-2 inline-block">Detalhes</a>
+                    </article>
+                </div>
+            </section>
+
+            <section class="bg-white rounded-xl border border-slate-200 p-4">
+                <h2 class="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                    <span class="inline-block w-2 h-2 rounded-full bg-amber-500"></span> Sala de Costura
+                </h2>
+                <div class="kanban-coluna min-h-24 space-y-3" data-local="SALA_COSTURA" data-local-label="Sala de Costura">
+                    <article th:each="pedido : ${pedidosSalaCostura}" th:attr="data-id=${pedido.id}"
+                             class="kanban-card bg-slate-50 rounded-lg border border-slate-200 p-3 cursor-move">
+                        <p class="font-semibold text-slate-900" th:text="'Pedido #' + ${pedido.id}"></p>
+                        <p class="text-xs text-slate-600 mt-0.5" th:text="${pedido.usuario != null ? pedido.usuario.nome : ''}"></p>
+                        <p class="text-xs text-slate-500 mt-1" th:text="${#temporals.format(pedido.dataCriacao, 'dd/MM HH:mm')}"></p>
+                        <p class="text-sm text-slate-700 mt-2" th:text="'R$ ' + ${#numbers.formatDecimal(pedido.valorTotal, 1, 2)}"></p>
+                        <a th:href="@{/pedidos/{id}(id=${pedido.id})}" class="text-xs text-slate-700 hover:underline mt-2 inline-block">Detalhes</a>
+                    </article>
+                </div>
+            </section>
+
+            <section class="bg-white rounded-xl border border-slate-200 p-4">
+                <h2 class="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                    <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span> Solicitante
+                </h2>
+                <div class="kanban-coluna min-h-24 space-y-3" data-local="SOLICITANTE" data-local-label="Solicitante">
+                    <article th:each="pedido : ${pedidosSolicitante}" th:attr="data-id=${pedido.id}"
+                             class="kanban-card bg-slate-50 rounded-lg border border-slate-200 p-3 cursor-move">
+                        <p class="font-semibold text-slate-900" th:text="'Pedido #' + ${pedido.id}"></p>
+                        <p class="text-xs text-slate-600 mt-0.5" th:text="${pedido.usuario != null ? pedido.usuario.nome : ''}"></p>
                         <p class="text-xs text-slate-500 mt-1" th:text="${#temporals.format(pedido.dataCriacao, 'dd/MM HH:mm')}"></p>
                         <p class="text-sm text-slate-700 mt-2" th:text="'R$ ' + ${#numbers.formatDecimal(pedido.valorTotal, 1, 2)}"></p>
                         <a th:href="@{/pedidos/{id}(id=${pedido.id})}" class="text-xs text-slate-700 hover:underline mt-2 inline-block">Detalhes</a>
@@ -60,38 +101,171 @@
         </div>
     </div>
 
+    <!-- ===== Modal de movimentação ===== -->
+    <div id="modalMov" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-slate-900">Registrar transporte</h3>
+                <button type="button" id="modalFechar" class="text-slate-400 hover:text-slate-700 text-xl leading-none">&times;</button>
+            </div>
+            <p id="modalResumo" class="text-sm text-slate-600"></p>
+
+            <form id="formMov" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <input type="hidden" name="destino" id="movDestino">
+
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-medium mb-1">Origem</label>
+                    <select id="movOrigem" name="origem" class="w-full rounded-lg border px-3 py-2 text-sm">
+                        <option value="BRAS">Brás (Fábrica de Tecidos)</option>
+                        <option value="CENTRO_DISTRIBUICAO">Centro de Distribuição</option>
+                        <option value="SALA_COSTURA">Sala de Costura</option>
+                        <option value="SOLICITANTE">Solicitante</option>
+                    </select>
+                </div>
+
+                <div id="wrapSalaOrigem" class="hidden">
+                    <label class="block text-sm font-medium mb-1">Sala (origem)</label>
+                    <select name="salaOrigemId" class="w-full rounded-lg border px-3 py-2 text-sm">
+                        <option value="">— selecione —</option>
+                        <option th:each="sala : ${salasCostura}" th:value="${sala.id}" th:text="${sala.nome}"></option>
+                    </select>
+                </div>
+
+                <div id="wrapSalaDestino" class="hidden">
+                    <label class="block text-sm font-medium mb-1">Sala (destino)</label>
+                    <select name="salaDestinoId" class="w-full rounded-lg border px-3 py-2 text-sm">
+                        <option value="">— selecione —</option>
+                        <option th:each="sala : ${salasCostura}" th:value="${sala.id}" th:text="${sala.nome}"></option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Modo de transporte</label>
+                    <select name="modoTransporte" required class="w-full rounded-lg border px-3 py-2 text-sm">
+                        <option th:each="modo : ${modosTransporte}" th:value="${modo}" th:text="${modo.descricao}"></option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Custo (R$)</label>
+                    <input type="number" step="0.01" min="0" name="custo" value="0.00"
+                           class="w-full rounded-lg border px-3 py-2 text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Data de saída</label>
+                    <input type="date" name="dataSaida" class="w-full rounded-lg border px-3 py-2 text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Data de chegada</label>
+                    <input type="date" name="dataChegada" class="w-full rounded-lg border px-3 py-2 text-sm">
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-medium mb-1">Observações</label>
+                    <input type="text" name="observacoes" maxlength="500"
+                           class="w-full rounded-lg border px-3 py-2 text-sm"
+                           placeholder="Ex.: ajuste fino, código de rastreio...">
+                </div>
+
+                <div class="sm:col-span-2 flex justify-end gap-2 pt-2">
+                    <button type="button" id="modalCancelar"
+                            class="rounded-lg border border-slate-300 px-4 py-2 text-sm">Cancelar</button>
+                    <button type="submit"
+                            class="rounded-lg bg-slate-900 text-white px-5 py-2 text-sm">Confirmar transporte</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
     <script>
-        async function atualizarStatus(pedidoId, novoStatus) {
-            const body = new URLSearchParams();
-            body.append("id", pedidoId);
-            body.append("status", novoStatus);
+        const modal = document.getElementById("modalMov");
+        const form = document.getElementById("formMov");
+        const selOrigem = document.getElementById("movOrigem");
+        const inpDestino = document.getElementById("movDestino");
+        const wrapSalaOrigem = document.getElementById("wrapSalaOrigem");
+        const wrapSalaDestino = document.getElementById("wrapSalaDestino");
+        const resumo = document.getElementById("modalResumo");
 
-            const response = await fetch("/pedidos/mudar-status", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: body.toString()
-            });
+        let pendente = null; // { pedidoId, fromEl, oldIndex, item, destinoLocal }
 
-            if (!response.ok) {
-                throw new Error("Erro ao atualizar status");
-            }
+        function atualizarSalas() {
+            wrapSalaOrigem.classList.toggle("hidden", selOrigem.value !== "SALA_COSTURA");
+            wrapSalaDestino.classList.toggle("hidden", inpDestino.value !== "SALA_COSTURA");
         }
+        selOrigem.addEventListener("change", atualizarSalas);
+
+        function reverter() {
+            if (!pendente) return;
+            const { fromEl, oldIndex, item } = pendente;
+            fromEl.insertBefore(item, fromEl.children[oldIndex] || null);
+            pendente = null;
+        }
+
+        function fecharModal(comReverter) {
+            if (comReverter) reverter();
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+            form.reset();
+        }
+
+        document.getElementById("modalFechar").addEventListener("click", () => fecharModal(true));
+        document.getElementById("modalCancelar").addEventListener("click", () => fecharModal(true));
+
+        function abrirModal(origemLocal, origemLabel, destinoLocal, destinoLabel) {
+            selOrigem.value = origemLocal || "BRAS";
+            inpDestino.value = destinoLocal;
+            resumo.textContent = (origemLabel || "Não iniciado") + "  →  " + destinoLabel;
+            atualizarSalas();
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+        }
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (!pendente) return;
+            const data = new URLSearchParams(new FormData(form));
+            try {
+                const resp = await fetch("/pedidos/" + pendente.pedidoId + "/movimentacoes", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: data.toString()
+                });
+                if (!resp.ok) throw new Error("falha");
+                pendente = null; // mantém o card na nova coluna
+                fecharModal(false);
+            } catch (err) {
+                alert("Não foi possível registrar a movimentação.");
+                fecharModal(true);
+            }
+        });
 
         document.querySelectorAll(".kanban-coluna").forEach((coluna) => {
             Sortable.create(coluna, {
                 group: "pedidos",
                 animation: 150,
                 ghostClass: "opacity-60",
-                onEnd: async (evt) => {
-                    const pedidoId = evt.item.dataset.id;
-                    const novoStatus = evt.to.dataset.status;
-                    try {
-                        await atualizarStatus(pedidoId, novoStatus);
-                    } catch (err) {
-                        evt.from.insertBefore(evt.item, evt.from.children[evt.oldIndex] || null);
-                        alert("Não foi possível atualizar o status do pedido.");
+                onEnd: (evt) => {
+                    if (evt.from === evt.to) return; // apenas reordenou
+                    pendente = {
+                        pedidoId: evt.item.dataset.id,
+                        fromEl: evt.from,
+                        oldIndex: evt.oldIndex,
+                        item: evt.item
+                    };
+                    if (!evt.to.dataset.local) {
+                        // "Não iniciado" não é um destino de transporte válido
+                        reverter();
+                        return;
                     }
+                    abrirModal(
+                        evt.from.dataset.local,
+                        evt.from.dataset.localLabel,
+                        evt.to.dataset.local,
+                        evt.to.dataset.localLabel
+                    );
                 }
             });
         });

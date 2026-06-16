@@ -48,8 +48,15 @@ public class DadosIniciaisRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        seedAdminUsuario();
+        garantirAdmin();
+        garantirDadosBase();
+    }
 
+    public void garantirAdmin() {
+        seedAdminUsuario();
+    }
+
+    public void garantirDadosBase() {
         if (configuracaoRepository.count() == 0) {
             ConfiguracaoSistemaModel config = new ConfiguracaoSistemaModel();
             config.setId(1L);
